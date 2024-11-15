@@ -24,6 +24,7 @@ class Graph:
 
         self.movies_df = self.movies_df.merge(self.credits_df, on='id', how='inner')
 
+
     def build_graph(self):
         """
         Build a graph where movies are connected if they share actors.
@@ -148,19 +149,38 @@ class Graph:
         fig.show()
 
     def find_kevin_bacon_number_bfs(self, start_movie_name, target_movie_name):
-        # Find the movie IDs for the given movie names
-        start_movie_id = self.movies_df.loc[self.movies_df['original_title'] == start_movie_name, 'id'].values
-        target_movie_id = self.movies_df.loc[self.movies_df['original_title'] == target_movie_name, 'id'].values
+        # Helper function to disambiguate movie titles
+        def disambiguate_movie(movie_name):
+            matching_movies = self.movies_df[self.movies_df['original_title'] == movie_name]
 
-        if len(start_movie_id) == 0:
-            print(f"Movie '{start_movie_name}' not found.")
-            return
-        if len(target_movie_id) == 0:
-            print(f"Movie '{target_movie_name}' not found.")
-            return
+            if matching_movies.empty:
+                print(f"Movie '{movie_name}' not found.")
+                return None
 
-        start_movie_id = start_movie_id[0]
-        target_movie_id = target_movie_id[0]
+            if len(matching_movies) == 1:
+                return matching_movies.iloc[0]['id']
+
+            print(f"Multiple movies found with the title '{movie_name}':")
+            for idx, row in matching_movies.iterrows():
+                cast_names = [actor['name'] for actor in row['cast'][:5]]  # Show up to 5 actors for clarity
+                print(
+                    f"  [{idx}] {row['original_title']} ({row['release_date'][:4] if pd.notna(row['release_date']) else 'Unknown Year'})")
+                print(f"      Cast: {', '.join(cast_names)}")
+
+            while True:
+                try:
+                    choice = int(input("Enter the number corresponding to the correct movie: "))
+                    if choice in matching_movies.index:
+                        return matching_movies.loc[choice, 'id']
+                except ValueError:
+                    print("Invalid input. Please enter a number.")
+
+        # Disambiguate the start and target movies
+        start_movie_id = disambiguate_movie(start_movie_name)
+        target_movie_id = disambiguate_movie(target_movie_name)
+
+        if start_movie_id is None or target_movie_id is None:
+            return
 
         # BFS Initialization
         visited = set()  # Track visited nodes
@@ -285,4 +305,4 @@ if __name__ == "__main__":
     movie_graph.build_graph()
     print("done building")
     # movie_graph.visualize_graph("862", 15)
-    movie_graph.find_kevin_bacon_number_bfs("Avatar", "Iron Man")
+    movie_graph.find_kevin_bacon_number_bfs("Avatar", "Moana")
