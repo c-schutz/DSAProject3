@@ -133,7 +133,7 @@ class Graph:
             # If a base movie is provided, include shared actors in the hover text
             if movie_id and node != movie_id and subgraph.has_edge(movie_id, node):
                 shared_actors = ', '.join(subgraph[movie_id][node]['actors'])  # Get shared actors
-                node_hover_text = f"Movie: {movie_name}\nShared Actors with {movie_name}: {shared_actors}"
+                node_hover_text = f"Movie: {movie_name}\nShared Actors with {movie_id}: {shared_actors}"
             else:
                 node_hover_text = f"Movie: {movie_name}"
 
@@ -144,6 +144,62 @@ class Graph:
         fig.add_trace(node_trace)
         fig.update_layout(showlegend=False)
         fig.show()
+
+    def find_kevin_bacon_number_bfs(self, start_movie_name, target_movie_name):
+        # Find the movie IDs for the given movie names
+        start_movie_id = self.movies_df.loc[self.movies_df['original_title'] == start_movie_name, 'id'].values
+        target_movie_id = self.movies_df.loc[self.movies_df['original_title'] == target_movie_name, 'id'].values
+
+        # Ensure both movies exist in the dataset
+        if len(start_movie_id) == 0:
+            print(f"Movie '{start_movie_name}' not found.")
+            return
+        if len(target_movie_id) == 0:
+            print(f"Movie '{target_movie_name}' not found.")
+            return
+
+        start_movie_id = start_movie_id[0]
+        target_movie_id = target_movie_id[0]
+
+        # BFS to find the shortest path
+        visited = set()  # To keep track of visited nodes
+        queue = [(start_movie_id, [start_movie_id])]  # Queue for BFS: (current_node, current_path)
+
+        while queue:
+            current_node, path = queue.pop(0)  # Dequeue the next node and path
+
+            if current_node == target_movie_id:
+                # Found the target movie, print the path and connecting actors
+                movie_names = [
+                    self.movies_df.loc[self.movies_df['id'] == movie_id, 'original_title'].values[0]
+                    for movie_id in path
+                ]
+
+                print(f"The Kevin Bacon number from '{start_movie_name}' to '{target_movie_name}' is {len(path) - 1}.")
+                print("Path:")
+
+                # Print the path with shared actors between each movie
+                for i in range(len(path) - 1):
+                    movie_a = path[i]
+                    movie_b = path[i + 1]
+                    shared_actors = self.graph[movie_a][movie_b]['actors']
+                    movie_a_name = movie_names[i]
+                    movie_b_name = movie_names[i + 1]
+
+                    print(f"  {movie_a_name} -> {movie_b_name} (Shared Actors: {', '.join(shared_actors)})")
+
+                return
+
+            if current_node not in visited:
+                visited.add(current_node)
+
+                # Add all unvisited neighbors to the queue
+                for neighbor in self.graph.neighbors(current_node):
+                    if neighbor not in visited:
+                        queue.append((neighbor, path + [neighbor]))
+
+        # If we exhaust the queue and don't find the target movie
+        print(f"'{target_movie_name}' is not reachable from '{start_movie_name}'.")
 
 
 if __name__ == "__main__":
@@ -156,5 +212,4 @@ if __name__ == "__main__":
 
     movie_graph.build_graph()
     print("done building")
-    movie_id = "18"
-    movie_graph.visualize_graph(movie_id=movie_id, max_connections=10)
+    movie_graph.find_kevin_bacon_number_bfs("Iron Man", "Pirates of the Caribbean: Dead Men Tell No Tales")
