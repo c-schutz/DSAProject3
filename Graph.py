@@ -57,6 +57,8 @@ class Graph:
     def visualize_graph(self, movie_id=None, max_connections=15):
         fig = make_subplots()
 
+        if movie_id is not None:
+            movie_id = str(movie_id)
         # Use the entire graph if no movie_id is provided, otherwise create a subgraph for the movie and its neighbors
         subgraph = self.graph if movie_id is None else self.graph.subgraph(
             [movie_id] + list(self.graph.neighbors(movie_id)))
@@ -150,7 +152,6 @@ class Graph:
         start_movie_id = self.movies_df.loc[self.movies_df['original_title'] == start_movie_name, 'id'].values
         target_movie_id = self.movies_df.loc[self.movies_df['original_title'] == target_movie_name, 'id'].values
 
-        # Ensure both movies exist in the dataset
         if len(start_movie_id) == 0:
             print(f"Movie '{start_movie_name}' not found.")
             return
@@ -161,15 +162,15 @@ class Graph:
         start_movie_id = start_movie_id[0]
         target_movie_id = target_movie_id[0]
 
-        # BFS to find the shortest path
-        visited = set()  # To keep track of visited nodes
-        queue = [(start_movie_id, [start_movie_id])]  # Queue for BFS: (current_node, current_path)
+        # BFS Initialization
+        visited = set()  # Track visited nodes
+        queue = [(start_movie_id, [start_movie_id])]  # Queue holds (current_node, path_to_current_node)
 
         while queue:
-            current_node, path = queue.pop(0)  # Dequeue the next node and path
+            current_node, path = queue.pop(0)
 
+            # If target movie is found, print the path and actors
             if current_node == target_movie_id:
-                # Found the target movie, print the path and connecting actors
                 movie_names = [
                     self.movies_df.loc[self.movies_df['id'] == movie_id, 'original_title'].values[0]
                     for movie_id in path
@@ -178,7 +179,6 @@ class Graph:
                 print(f"The Kevin Bacon number from '{start_movie_name}' to '{target_movie_name}' is {len(path) - 1}.")
                 print("Path:")
 
-                # Print the path with shared actors between each movie
                 for i in range(len(path) - 1):
                     movie_a = path[i]
                     movie_b = path[i + 1]
@@ -190,15 +190,15 @@ class Graph:
 
                 return
 
+            # Mark current node as visited
             if current_node not in visited:
                 visited.add(current_node)
 
-                # Add all unvisited neighbors to the queue
+                # Enqueue all unvisited neighbors
                 for neighbor in self.graph.neighbors(current_node):
                     if neighbor not in visited:
                         queue.append((neighbor, path + [neighbor]))
 
-        # If we exhaust the queue and don't find the target movie
         print(f"'{target_movie_name}' is not reachable from '{start_movie_name}'.")
 
 
@@ -212,4 +212,5 @@ if __name__ == "__main__":
 
     movie_graph.build_graph()
     print("done building")
-    movie_graph.find_kevin_bacon_number_bfs("Iron Man", "Pirates of the Caribbean: Dead Men Tell No Tales")
+    movie_graph.visualize_graph("862", 15)
+    movie_graph.find_kevin_bacon_number_bfs("Avatar", "Moana")
