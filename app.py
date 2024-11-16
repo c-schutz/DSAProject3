@@ -26,10 +26,9 @@ def visualize():
     graph_data = movie_graph.visualize_graph(movie_name, max_connections)
 
     if isinstance(graph_data, list):  # If it's a list of movies
-        return render_template('select_movie.html', movies=graph_data, max_connections=max_connections)
+        return jsonify(graph_data)  # Return the movie list as JSON
 
     return jsonify({'graph_data': graph_data})
-
 @app.route('/select_movie', methods=['POST'])
 def select_movie():
     movie_id = request.form.get('movie_id')

@@ -49,8 +49,19 @@
                 return response.json();
             })
             .then(data => {
-                if (data.graph_data) {
-                    const graphData = JSON.parse(data.graph_data); // Parse the JSON string
+                if (Array.isArray(data)) {
+                    // Handle the case where multiple movies are found
+                    let movieListHTML = '<h2>Select a Movie</h2><form id="movie-selection-form" action="/select_movie" method="POST"><ul>';
+                    data.forEach(movie => {
+                        movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required><label for="movie_${movie.id}">${movie.original_title} (ID: ${movie.id})</label></li>`;
+                    });
+                    movieListHTML += '</ul><input type="hidden" name="max_connections" value="15"><button type="submit">Visualize</button></form>';
+                    document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
+                    document.getElementById('graph').innerHTML = ''; // Clear previous graph
+                } else if (data.graph_data) {
+                    // Parse the graph_data string into a JSON object
+                    const graphData = JSON.parse(data.graph_data);
+                    // Use Plotly to create the graph
                     Plotly.newPlot('graph', graphData.data, graphData.layout);
                     document.getElementById('result').innerText = ''; // Clear previous errors
                 } else {
