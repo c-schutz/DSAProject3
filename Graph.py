@@ -1,8 +1,10 @@
 import ast
 import networkx as nx
 import pandas as pd
+import plotly
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+import json
 class Graph:
     def __init__(self, movies_file, credits_file):
         self.movies_file = movies_file
@@ -60,6 +62,7 @@ class Graph:
 
         if movie_id is not None:
             movie_id = str(movie_id)
+
         # Use the entire graph if no movie_id is provided, otherwise create a subgraph for the movie and its neighbors
         subgraph = self.graph if movie_id is None else self.graph.subgraph(
             [movie_id] + list(self.graph.neighbors(movie_id)))
@@ -146,7 +149,9 @@ class Graph:
         fig.add_trace(trace_edges)
         fig.add_trace(node_trace)
         fig.update_layout(showlegend=False)
-        fig.show()
+
+        # Return the figure as JSON
+        return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
     def find_kevin_bacon_number_bfs(self, start_movie_name, target_movie_name):
         # Helper function to disambiguate movie titles

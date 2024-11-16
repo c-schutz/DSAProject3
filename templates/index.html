@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Graph Visualizer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1>Movie Graph Visualizer</h1>
+    <form id="movie-form">
+        <label for="movie_id">Enter Movie Title:</label>
+        <input type="text" id="movie_id" name="movie_id" required>
+        <label for="max_connections">Max Connections:</label>
+        <input type="number" id="max_connections" name="max_connections" value="15" min="1">
+        <button type="submit">Visualize</button>
+    </form>
+    <div id="result"></div>
+    <div id="graph" style="width: 100%; height: 600px;"></div>
+
+    <script>
+        document.getElementById('movie-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            fetch('/visualize', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerText = 'Graph visualized!';
+                const graphData = JSON.parse(data.graph_data);
+                Plotly.newPlot('graph', graphData.data, graphData.layout);
+            });
+        });
+    </script>
+</body>
+</html>
