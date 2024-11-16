@@ -13,19 +13,30 @@ movie_graph = Graph(movies_file, credits_file)
 movie_graph.read_data()
 movie_graph.build_graph()
 
-
 @app.route('/')
 def index():
     return render_template('index.html')
 
-
 @app.route('/visualize', methods=['POST'])
 def visualize():
+    movie_name = request.form.get('movie_id')
+    max_connections = int(request.form.get('max_connections', 15))
+
+    # Visualize the graph for the given movie_name and return JSON data
+    graph_data = movie_graph.visualize_graph(movie_name, max_connections)
+
+    if isinstance(graph_data, list):  # If it's a list of movies
+        return render_template('select_movie.html', movies=graph_data, max_connections=max_connections)
+
+    return jsonify({'graph_data': graph_data})
+
+@app.route('/select_movie', methods=['POST'])
+def select_movie():
     movie_id = request.form.get('movie_id')
     max_connections = int(request.form.get('max_connections', 15))
 
-    # Visualize the graph for the given movie_id and return JSON data
-    graph_data = movie_graph.visualize_graph(movie_id, max_connections)
+    # Visualize the graph for the selected movie ID
+    graph_data = movie_graph.visualize_graph_by_id(movie_id, max_connections)
 
     return jsonify({'graph_data': graph_data})
 

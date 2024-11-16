@@ -57,7 +57,25 @@ class Graph:
                         self.graph.add_edge(movie_a, movie_b, weight=1, actor=actor,
                                             actors=[actor])  # Initialize weight and actors
 
-    def visualize_graph(self, movie_id=None, max_connections=15):
+    def visualize_graph(self, movie_name=None, max_connections=15):
+        if movie_name is None:
+            return json.dumps({'error': 'No movie name provided.'})
+
+        # Find matching movies
+        matching_movies = self.movies_df[self.movies_df['original_title'].str.lower() == movie_name.lower()]
+
+        if matching_movies.empty:
+            return json.dumps({'error': f"Movie '{movie_name}' not found."})
+
+        if len(matching_movies) > 1:
+            # Return the list of matching movies for user selection
+            return matching_movies[['original_title', 'id']].to_dict(orient='records')
+
+        # If a single movie is found, get its ID
+        movie_id = matching_movies.iloc[0]['id']
+        return self.visualize_graph_by_id(movie_id, max_connections)
+
+    def visualize_graph_by_id(self, movie_id=None, max_connections=15):
         fig = make_subplots()
 
         if movie_id is not None:

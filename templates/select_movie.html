@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Movie Graph Visualizer</title>
+    <title>Select Movie</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         body {
@@ -23,22 +23,28 @@
     </style>
 </head>
 <body>
-    <h1>Movie Graph Visualizer</h1>
-    <form id="movie-form" action="/visualize" method="POST">
-        <label for="movie_id">Enter Movie Title:</label>
-        <input type="text" id="movie_id" name="movie_id" required>
-        <label for="max_connections">Max Connections:</label>
-        <input type="number" id="max_connections" name="max_connections" value="15" min="1">
+    <h1>Select a Movie</h1>
+    <form id="movie-selection-form" action="/select_movie" method="POST">
+        <input type="hidden" name="max_connections" value="{{ max_connections }}">
+        <ul>
+            {% for movie in movies %}
+                <li>
+                    <input type="radio" id="movie_{{ movie.id }}" name="movie_id" value="{{ movie.id }}" required>
+                    <label for="movie_{{ movie.id }}">{{ movie.original_title }}</label>
+                </li>
+            {% endfor %}
+        </ul>
         <button type="submit">Visualize</button>
     </form>
+
     <div id="result"></div>
     <div id="graph"></div>
 
     <script>
-        document.getElementById('movie-form').addEventListener('submit', function(event) {
+        document.getElementById('movie-selection-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
-            fetch('/visualize', {
+            fetch('/select_movie', {
                 method: 'POST',
                 body: formData
             })
@@ -54,7 +60,7 @@
                     Plotly.newPlot('graph', graphData.data, graphData.layout);
                     document.getElementById('result').innerText = ''; // Clear previous errors
                 } else {
-                    document.getElementById('result').innerText = data.error || 'An error occurred.';
+                    document.getElementById('result').innerText = data.error || 'Error visualizing the graph.';
                 }
             })
             .catch(error => {
