@@ -188,6 +188,9 @@ class Graph:
 
                     print(f"  {movie_a_name} -> {movie_b_name} (Shared Actors: {', '.join(shared_actors)})")
 
+                # Visualize the path from start movie to target movie
+                subgraph = self.graph.subgraph(path)  # Create subgraph with the BFS path
+                self.visualize_graph_from_subgraph(subgraph)
                 return
 
             # Mark current node as visited
@@ -201,6 +204,75 @@ class Graph:
 
         print(f"'{target_movie_name}' is not reachable from '{start_movie_name}'.")
 
+    def visualize_graph_from_subgraph(self, subgraph):
+        fig = make_subplots()
+
+        # Layout of the graph
+        pos = nx.spring_layout(subgraph, scale=2)
+
+        # Create edges for the plot, using the edge weights
+        trace_edges = go.Scatter(
+            x=[],
+            y=[],
+            line=dict(width=0.5, color='#888'),
+            hoverinfo='text',
+            mode='lines',
+            text=[]
+        )
+
+        for edge in subgraph.edges():
+            x0, y0 = pos[edge[0]]
+            x1, y1 = pos[edge[1]]
+            weight = subgraph[edge[0]][edge[1]]['weight']  # Get the weight (number of shared actors)
+            shared_actors = ', '.join(subgraph[edge[0]][edge[1]]['actors'])  # Get the shared actors
+            trace_edges['x'] += tuple([x0, x1, None])
+            trace_edges['y'] += tuple([y0, y1, None])
+
+            # Set the hoverinfo to show the weight and shared actors
+            trace_edges['text'] += tuple([f"Shared Actors: {shared_actors}\nWeight (Shared Actors): {weight}"])
+
+        # Create nodes for the plot
+        node_trace = go.Scatter(
+            x=[],
+            y=[],
+            text=[],
+            mode='markers+text',
+            hoverinfo='text',
+            marker=dict(
+                showscale=True,
+                colorscale='YlGnBu',
+                size=10,
+                color=[],
+                colorbar=dict(
+                    thickness=15,
+                    title='Node Connections',
+                    xanchor='left',
+                    titleside='right'
+                ),
+                line=dict(width=2)
+            )
+        )
+
+        # Add nodes to the plot
+        for node in subgraph.nodes():
+            # Fetch the movie name (title) from the movies dataframe
+            movie_name = self.movies_df.loc[self.movies_df['id'] == node, 'original_title'].values
+            movie_name = movie_name[0] if movie_name.size > 0 else node  # Fallback to node ID if no name found
+
+            x, y = pos[node]
+            node_trace['x'] += tuple([x])
+            node_trace['y'] += tuple([y])
+            node_trace['marker']['color'] += tuple([len(subgraph.edges(node))])
+
+            # Add hover text for the node
+            node_trace['text'] += tuple([f"Movie: {movie_name}"])
+
+        # Add the traces to the figure
+        fig.add_trace(trace_edges)
+        fig.add_trace(node_trace)
+        fig.update_layout(showlegend=False)
+        fig.show()
+
 
 if __name__ == "__main__":
     movies_file = "movies_metadata.csv"
@@ -212,5 +284,5 @@ if __name__ == "__main__":
 
     movie_graph.build_graph()
     print("done building")
-    movie_graph.visualize_graph("862", 15)
-    movie_graph.find_kevin_bacon_number_bfs("Avatar", "Moana")
+    # movie_graph.visualize_graph("862", 15)
+    movie_graph.find_kevin_bacon_number_bfs("Avatar", "Iron Man")
