@@ -97,16 +97,15 @@ class Graph:
             # Create a subgraph with the limited number of neighbors
             subgraph = self.graph.subgraph([movie_id] + limited_neighbors)
 
-        # Layout of the graph
-        pos = nx.spring_layout(subgraph, scale=2)
 
+        # Layout of the graph
+        pos = nx.spring_layout(subgraph, scale=None)
         # Create edges for the plot, using the edge weights
         trace_edges = go.Scatter(
             x=[],
             y=[],
-            line=dict(width=0.5, color='#888'),
+            line=dict(width=0.5, color='#444'),
             hoverinfo='text',
-            mode='lines',
             text=[]
         )
 
@@ -126,18 +125,19 @@ class Graph:
             x=[],
             y=[],
             text=[],
+            textposition='top center',
             mode='markers+text',
             hoverinfo='text',
             marker=dict(
                 showscale=True,
                 colorscale='YlGnBu',
-                size=10,
+                size=20,
                 color=[],
                 colorbar=dict(
-                    thickness=15,
+                    thickness=25,
                     title='Node Connections',
                     xanchor='left',
-                    titleside='right'
+                    titleside='right',
                 ),
                 line=dict(width=2)
             )
@@ -167,6 +167,8 @@ class Graph:
         fig.add_trace(trace_edges)
         fig.add_trace(node_trace)
         fig.update_layout(showlegend=False)
+        fig.update_xaxes(showgrid=False, showticklabels=False)
+        fig.update_yaxes(showgrid=False, showticklabels=False)
 
         # Return the figure as JSON
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
@@ -209,6 +211,7 @@ class Graph:
         visited = set()  # Track visited nodes
         queue = [(start_movie_id, [start_movie_id])]  # Queue holds (current_node, path_to_current_node)
 
+        print("Started BFS Search")
         while queue:
             current_node, path = queue.pop(0)
 
@@ -247,19 +250,20 @@ class Graph:
 
         print(f"'{target_movie_name}' is not reachable from '{start_movie_name}'.")
 
+    #def dijkstras(selfself, start_movie_name, target_movie_name):
+
     def visualize_graph_from_subgraph(self, subgraph):
         fig = make_subplots()
 
         # Layout of the graph
-        pos = nx.spring_layout(subgraph, scale=2)
+        pos = nx.spring_layout(subgraph, scale=None)
 
         # Create edges for the plot, using the edge weights
         trace_edges = go.Scatter(
             x=[],
             y=[],
-            line=dict(width=0.5, color='#888'),
+            line=dict(width=0.5, color='#444'),
             hoverinfo='text',
-            mode='lines',
             text=[]
         )
 
@@ -279,18 +283,19 @@ class Graph:
             x=[],
             y=[],
             text=[],
+            textposition='top center',
             mode='markers+text',
             hoverinfo='text',
             marker=dict(
                 showscale=True,
                 colorscale='YlGnBu',
-                size=10,
+                size=20,
                 color=[],
                 colorbar=dict(
-                    thickness=15,
+                    thickness=25,
                     title='Node Connections',
                     xanchor='left',
-                    titleside='right'
+                    titleside='right',
                 ),
                 line=dict(width=2)
             )
@@ -323,9 +328,13 @@ if __name__ == "__main__":
 
     movie_graph = Graph(movies_file, credits_file)
 
+    print("Begin Read")
     movie_graph.read_data()
+    print("Read Finished")
 
+    print("Begin Build")
     movie_graph.build_graph()
-    print("done building")
-    # movie_graph.visualize_graph("862", 15)
+    print("Build Finished")
+
+    #movie_graph.visualize_graph("862", 15)
     movie_graph.find_kevin_bacon_number_bfs("Avatar", "Moana")
