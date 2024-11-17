@@ -1,10 +1,13 @@
 import ast
+from collections import defaultdict
+
 import networkx as nx
 import pandas as pd
 import plotly
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import json
+from PriorityQueue import PriorityQueue as pq
 class Graph:
     def __init__(self, movies_file, credits_file):
         self.movies_file = movies_file
@@ -250,7 +253,94 @@ class Graph:
 
         print(f"'{target_movie_name}' is not reachable from '{start_movie_name}'.")
 
-    #def dijkstras(selfself, start_movie_name, target_movie_name):
+    def dijkstra(self, start_movie_name, target_movie_name):
+
+        def disambiguate_movie(movie_name):
+            matching_movies = self.movies_df[self.movies_df['original_title'].str.lower() == movie_name.lower()]
+
+            if matching_movies.empty:
+                print(f"Movie '{movie_name}' not found.")
+                return None
+
+            if len(matching_movies) == 1:
+                return matching_movies.iloc[0]['id']
+
+            print(f"Multiple movies found with the title '{movie_name}':")
+            for idx, row in matching_movies.iterrows():
+                cast_names = [actor['name'] for actor in row['cast'][:5]]
+                print(
+                    f"  [{idx}] {row['original_title']} ({row['release_date'][:4] if pd.notna(row['release_date']) else 'Unknown Year'})")
+                print(f"      Cast: {', '.join(cast_names)}")
+
+            while True:
+                try:
+                    choice = int(input("Enter the number corresponding to the correct movie: "))
+                    if choice in matching_movies.index:
+                        return matching_movies.loc[choice, 'id']
+                except ValueError:
+                    print("Invalid input. Please enter a number.")
+
+        #make sure start and target movie_id's are proper and specified
+        start_movie_id = disambiguate_movie(start_movie_name)
+        target_movie_id = disambiguate_movie(target_movie_name)
+
+        #output for improper start/target movie name
+        if start_movie_id is None or target_movie_id is None:
+            print("Your movie doesn't exist")
+            return
+
+        #initialize distances
+        distances = {node: float('inf') for node in self.graph.nodes}#d[v]
+        previous_nodes = {node: None for node in self.graph.nodes}#p[v]
+        distances[start_movie_id] = 0
+
+        #create priority queue
+        priority_queue = pq()
+        priority_queue.insert((0, start_movie_id))
+
+        found = False
+        while not priority_queue.checkEmpty():
+            current_distance, current_node = priority_queue.pop()
+            adjacent_movies = self.graph.neighbors(current_node)
+            if found:
+                break
+            for node in adjacent_movies:
+                edge_weight = self.graph[current_node][node]['weight']
+                if distances[node] > distances[current_node] + edge_weight:
+                    distances[node] = distances[current_node] + edge_weight
+                    previous_nodes[node] = current_node
+                    if node == target_movie_id:
+                        found = True
+                        break
+                    priority_queue.insert((edge_weight, node))
+
+        print("Worked?")
+        path = []
+        current_node = target_movie_id
+        while current_node is not None:
+            path.append(current_node)
+            current_node = previous_nodes[current_node]
+        path = path[::-1]
+
+        if distances[target_movie_id] == float('inf'):
+            print(f"No path found between '{start_movie_name}' and '{target_movie_name}'.")
+        else:
+            movie_names = [
+                self.movies_df.loc[self.movies_df['id'] == movie_id, 'original_title'].values[0]
+                for movie_id in path
+            ]
+            print(
+                f"The shortest path from '{start_movie_name}' to '{target_movie_name}' has a weight of {distances[target_movie_id]:.2f}.")
+            print("Path:")
+            for i in range(len(path) - 1):
+                movie_a = path[i]
+                movie_b = path[i + 1]
+                shared_actors = self.graph[movie_a][movie_b]['actors']
+                movie_a_name = movie_names[i]
+                movie_b_name = movie_names[i + 1]
+                print(f"  {movie_a_name} -> {movie_b_name} (Shared Actors: {', '.join(shared_actors)})")
+            subgraph = self.graph.subgraph(path)
+            self.visualize_graph_from_subgraph(subgraph)
 
     def visualize_graph_from_subgraph(self, subgraph):
         fig = make_subplots()
@@ -319,6 +409,8 @@ class Graph:
         fig.add_trace(trace_edges)
         fig.add_trace(node_trace)
         fig.update_layout(showlegend=False)
+        fig.update_xaxes(showgrid=False, showticklabels=False)
+        fig.update_yaxes(showgrid=False, showticklabels=False)
         fig.show()
 
 
@@ -337,4 +429,5 @@ if __name__ == "__main__":
     print("Build Finished")
 
     #movie_graph.visualize_graph("862", 15)
-    movie_graph.find_kevin_bacon_number_bfs("Avatar", "Moana")
+    #movie_graph.find_kevin_bacon_number_bfs("Avatar", "Moana")
+    movie_graph.dijkstra("Avatar", "Monsters, Inc.")
