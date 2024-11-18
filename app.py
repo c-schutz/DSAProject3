@@ -29,6 +29,7 @@ def visualize():
         return jsonify(graph_data)  # Return the movie list as JSON
 
     return jsonify({'graph_data': graph_data})
+
 @app.route('/visualizeID', methods=['POST'])
 def visualizeID():
     movie_id = request.form.get('movie_id')
@@ -37,6 +38,7 @@ def visualizeID():
     graph_data = movie_graph.visualize_graph_by_id(movie_id, max_connections)
 
     return jsonify({'graph_data': graph_data})
+
 @app.route('/select_movie', methods=['POST'])
 def select_movie():
     movie_id = request.form.get('movie_id')
@@ -46,6 +48,29 @@ def select_movie():
     graph_data = movie_graph.visualize_graph_by_id(movie_id, max_connections)
 
     return jsonify({'graph_data': graph_data})
+
+@app.route('/bfs', methods=['POST'])
+def bfs():
+    start_movie_name = request.form.get('start_movie')
+    target_movie_name = request.form.get('target_movie')
+
+    # Perform BFS and return the result
+    movie_graph.find_kevin_bacon_number_bfs(start_movie_name, target_movie_name)
+    return jsonify({'message': f"BFS completed from '{start_movie_name}' to '{target_movie_name}'."})
+
+@app.route('/bfs_graph', methods=['POST'])
+def bfs_graph():
+    start_movie_name = request.form.get('start_movie')
+    target_movie_name = request.form.get('target_movie')
+
+    # Perform BFS and visualize the path
+    result = movie_graph.find_kevin_bacon_number_bfs(start_movie_name, target_movie_name)
+
+    # Assuming you want to return the graph data for the path found
+    if result:
+        return jsonify({'graph_data': result})
+    else:
+        return jsonify({'error': 'No path found.'})
 
 if __name__ == '__main__':
     app.run(debug=True)

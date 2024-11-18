@@ -16,14 +16,18 @@
             border: 1px solid #ccc;
             margin-top: 20px;
         }
-        #result {
+        #result, #bfs-result {
             color: red;
             margin-top: 10px;
+        }
+        .bfs-form {
+            margin-top: 30px;
         }
     </style>
 </head>
 <body>
     <h1>Movie Graph Visualizer</h1>
+
     <form id="movie-form" action="/visualize" method="POST">
         <label for="movie_id">Enter Movie Title:</label>
         <input type="text" id="movie_id" name="movie_id" required>
@@ -31,8 +35,20 @@
         <input type="number" id="max_connections" name="max_connections" value="15" min="1">
         <button type="submit">Visualize</button>
     </form>
+
     <div id="result"></div>
     <div id="graph"></div>
+
+    <div class="bfs-form">
+        <h2>Breadth-First Search</h2>
+        <label for="start_movie">Start Movie Title:</label>
+        <input type="text" id="start_movie" name="start_movie" required>
+        <label for="target_movie">Target Movie Title:</label>
+        <input type="text" id="target_movie" name="target_movie" required>
+        <button id="bfs-button">Find Kevin Bacon Number</button>
+    </div>
+
+    <div id="bfs-result"></div>
 
     <script>
         document.getElementById('movie-form').addEventListener('submit', function(event) {
@@ -94,7 +110,7 @@
                     // If a single movie was found, plot it immediately
                     const graphData = JSON.parse(data.graph_data);
                     Plotly.newPlot('graph', graphData.data, graphData.layout);
-                    document .getElementById('result').innerText = ''; // Clear previous errors
+                    document.getElementById('result').innerText = ''; // Clear previous errors
                 } else {
                     document.getElementById('result').innerText = data.error || 'An error occurred.';
                 }
@@ -102,6 +118,31 @@
             .catch(error => {
                 console.error('Error:', error);
                 document.getElementById('result').innerText = 'An error occurred while fetching the data.';
+            });
+        });
+
+        document.getElementById('bfs-button').addEventListener('click', function() {
+            const startMovie = document.getElementById('start_movie').value;
+            const targetMovie = document.getElementById('target_movie').value;
+
+            fetch('/bfs', {
+                method: 'POST',
+                body: new URLSearchParams({
+                    start_movie: startMovie,
+                    target_movie: targetMovie
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    document.getElementById('bfs-result').innerText = data.message; // Display BFS completion message
+                } else {
+                    document.getElementById('bfs-result').innerText = data.error || 'An error occurred.';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('bfs-result').innerText = 'An error occurred while performing BFS.';
             });
         });
     </script>
