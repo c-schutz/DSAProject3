@@ -302,19 +302,20 @@ class Graph:
         while not priority_queue.checkEmpty():
             current_distance, current_node = priority_queue.pop()
             adjacent_movies = self.graph.neighbors(current_node)
-            if found:
+            if current_node == target_movie_id:
                 break
+            # if found:
+            #     break
             for node in adjacent_movies:
                 edge_weight = self.graph[current_node][node]['weight']
                 if distances[node] > distances[current_node] + edge_weight:
                     distances[node] = distances[current_node] + edge_weight
                     previous_nodes[node] = current_node
-                    if node == target_movie_id:
-                        found = True
-                        break
+                    # if node == target_movie_id:
+                    #     found = True
+                    #     break
                     priority_queue.insert((edge_weight, node))
 
-        print("Worked?")
         path = []
         current_node = target_movie_id
         while current_node is not None:
@@ -429,5 +430,5 @@ if __name__ == "__main__":
     print("Build Finished")
 
     #movie_graph.visualize_graph("862", 15)
-    #movie_graph.find_kevin_bacon_number_bfs("Avatar", "Moana")
-    movie_graph.dijkstra("Avatar", "Monsters, Inc.")
+    movie_graph.find_kevin_bacon_number_bfs("Minions", "Devil in a Blue Dress")
+    movie_graph.dijkstra("Minions", "Devil in a Blue Dress")
