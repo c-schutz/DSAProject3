@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='animations.css') }}">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Movie Graph Visualizer</title>
@@ -20,13 +21,32 @@
             color: red;
             margin-top: 10px;
         }
+        h1.flex {
+            display: flex;
+            gap : 1450px;
+            align-items: center;
+        }
+        img.settings:hover {
+            opacity: 0.5;
+        }
+        h1 img.settings {
+            width: 30px;
+            height: 30px;
+            transition-property: opacity;
+            transition-duration: .3s;
+            transition-timing-function: ease;
+            transition-delay: 0s;
+        }
         .bfs-form {
             margin-top: 30px;
         }
     </style>
 </head>
 <body>
-    <h1>Movie Graph Visualizer</h1>
+    <h1 class="flex">
+        Movie Graph Visualizer
+        <img id="SettingsButton" class="settings" src="{{ url_for('static', filename='images/settingsDSA.jpg') }}" alt="Settings Icon">
+    </h1>
 
     <form id="movie-form" action="/visualize" method="POST">
         <label for="movie_id">Enter Movie Title:</label>
@@ -51,6 +71,15 @@
     <div id="bfs-result"></div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const settingsButton = document.getElementById('SettingsButton');
+            settingsButton.addEventListener('click', function () {
+                settingsButton.classList.remove('settings'); // reset animation
+                void settingsButton.offsetWidth; // trigger reflow
+                settingsButton.classList.add('settings'); // start animation
+            });
+        });
+
         document.getElementById('movie-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
