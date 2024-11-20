@@ -7,10 +7,31 @@
     }
 }
 
+@keyframes ftIn {
+    from{
+        transform: translateY(65px);
+        opacity: 0;
+    }
+    to{
+        transform: translateY(0px);
+        opacity: 1;
+    }
+}
+
 h1 img.settings{
     animation-name: spin;
     animation-duration: 1.5s;
     animation-timing-function: ease-in-out;
+    animation-delay: 0s;
+    animation-iteration-count: 1;
+    animation-direction: normal;
+    animation-fill-mode: none;
+}
+
+body select{
+    animation-name: ftIn;
+    animation-duration: 1s;
+    animation-timing-function: ease-in;
     animation-delay: 0s;
     animation-iteration-count: 1;
     animation-direction: normal;

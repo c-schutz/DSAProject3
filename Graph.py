@@ -418,17 +418,16 @@ class Graph:
 if __name__ == "__main__":
     movies_file = "movies_metadata.csv"
     credits_file = "credits.csv"
-
-    movie_graph = Graph(movies_file, credits_file)
-
-    print("Begin Read")
-    movie_graph.read_data()
-    print("Read Finished")
-
-    print("Begin Build")
-    movie_graph.build_graph()
-    print("Build Finished")
+    # movie_graph = Graph(movies_file, credits_file)
+    #
+    # print("Begin Read")
+    # movie_graph.read_data()
+    # print("Read Finished")
+    #
+    # print("Begin Build")
+    # movie_graph.build_graph()
+    # print("Build Finished")
 
     #movie_graph.visualize_graph("862", 15)
-    movie_graph.find_kevin_bacon_number_bfs("Minions", "Devil in a Blue Dress")
-    movie_graph.dijkstra("Minions", "Devil in a Blue Dress")
+    # movie_graph.find_kevin_bacon_number_bfs("Minions", "Devil in a Blue Dress")
+    # movie_graph.dijkstra("Minions", "Devil in a Blue Dress")

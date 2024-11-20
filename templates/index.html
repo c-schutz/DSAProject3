@@ -37,6 +37,17 @@
             transition-timing-function: ease;
             transition-delay: 0s;
         }
+        body select{
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            box-shadow: 5px 5px 5px darkgrey;
+        }
+        body select:hover{
+            opacity: 0.5;
+        }
+        body option:hover{
+            opacity: 0.5;
+        }
         .bfs-form {
             margin-top: 30px;
         }
@@ -71,24 +82,49 @@
     <div id="bfs-result"></div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const settingsButton = document.getElementById('SettingsButton');
-            settingsButton.addEventListener('click', function () {
-                settingsButton.classList.remove('settings'); // reset animation
-                void settingsButton.offsetWidth; // trigger reflow
-                settingsButton.classList.add('settings'); // start animation
-            });
-        });
+        (function () {
+            let flag = false;
+            document.addEventListener('DOMContentLoaded', function () {
+                const settingsButton = document.getElementById('SettingsButton');
+                settingsButton.addEventListener('click', function () {
+                    flag = !flag;
+                    settingsButton.classList.remove('settings');
+                    void settingsButton.offsetWidth;
+                    settingsButton.classList.add('settings');
 
-        document.getElementById('movie-form').addEventListener('submit', function(event) {
+                    if (flag) {
+                        const selectElement = document.createElement('select');
+                        selectElement.name = "settings";
+                        selectElement.id = "settings-select";
+                        selectElement.innerHTML = `
+                            <option value="">Options</option>
+                            <option value="dog">One Movie</option>
+                            <option value="cat">Two Movies</option>
+                        `;
+                        selectElement.style.position = 'absolute';
+                        selectElement.style.top = '60px';
+                        selectElement.style.left = '1725px';
+                        document.body.appendChild(selectElement);
+                    } else {
+                        const existingSelect = document.getElementById('settings-select');
+                        if (existingSelect) {
+                            existingSelect.remove();
+                        }
+                    }
+                });
+            });
+        }());
+
+
+        document.getElementById('movie-form').addEventListener('submit', function (event) {
             event.preventDefault();
             const formData = new FormData(this);
             fetch('/visualize', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => {
-                if (!response.ok) {
+                .then(response => {
+                    if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
                 return response.json();
