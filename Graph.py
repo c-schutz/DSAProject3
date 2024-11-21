@@ -192,7 +192,7 @@ class Graph:
             for idx, row in matching_movies.iterrows():
                 cast_names = [actor['name'] for actor in row['cast'][:5]]  # Show up to 5 actors for clarity
                 print(
-                    f"  [{idx}] {row['original_title']} ({row['release_date'][:4] if pd.notna(row['release_date']) else 'Unknown Year'})")
+                    f"  [{idx}] {row['original_title']} ({row['release_date'] if pd.notna(row['release_date']) else 'Unknown Year'})")
                 print(f"      Cast: {', '.join(cast_names)}")
 
             while True:
@@ -269,7 +269,7 @@ class Graph:
             for idx, row in matching_movies.iterrows():
                 cast_names = [actor['name'] for actor in row['cast'][:5]]
                 print(
-                    f"  [{idx}] {row['original_title']} ({row['release_date'][:4] if pd.notna(row['release_date']) else 'Unknown Year'})")
+                    f"  [{idx}] {row['original_title']} ({row['release_date'] if pd.notna(row['release_date']) else 'Unknown Year'})")
                 print(f"      Cast: {', '.join(cast_names)}")
 
             while True:
@@ -428,6 +428,6 @@ if __name__ == "__main__":
     # movie_graph.build_graph()
     # print("Build Finished")
 
-    #movie_graph.visualize_graph("862", 15)
+    # movie_graph.visualize_graph("862", 15)
     # movie_graph.find_kevin_bacon_number_bfs("Minions", "Devil in a Blue Dress")
     # movie_graph.dijkstra("Minions", "Devil in a Blue Dress")

@@ -72,5 +72,29 @@ def bfs_graph():
     else:
         return jsonify({'error': 'No path found.'})
 
+@app.route('/dijkstra', methods=['POST'])
+def dijkstra():
+    start_movie_name = request.form.get('start_movie')
+    target_movie_name = request.form.get('target_movie')
+
+    # Perform BFS and return the result
+    movie_graph.dijkstra(start_movie_name, target_movie_name)
+    return jsonify({'message': f"Dijkstra completed from '{start_movie_name}' to '{target_movie_name}'."})
+
+
+@app.route('/dijkstra_graph', methods=['POST'])
+def dijkstra_graph():
+    start_movie_name = request.form.get('start_movie')
+    target_movie_name = request.form.get('target_movie')
+
+    # Perform BFS and visualize the path
+    result = movie_graph.dijkstra(start_movie_name, target_movie_name)
+
+    # Assuming you want to return the graph data for the path found
+    if result:
+        return jsonify({'graph_data': result})
+    else:
+        return jsonify({'error': 'No path found.'})
+
 if __name__ == '__main__':
     app.run(debug=True)

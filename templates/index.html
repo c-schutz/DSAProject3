@@ -21,6 +21,10 @@
             color: red;
             margin-top: 10px;
         }
+        #result, #dijkstra-result {
+            color: red;
+            margin-top: 10px;
+        }
         h1.flex {
             display: flex;
             gap : 1450px;
@@ -56,8 +60,8 @@
 <body>
     <h1 class="flex">
         Movie Graph Visualizer
-        <img id="SettingsButton" class="settings" src="{{ url_for('static', filename='images/settingsDSA.jpg') }}" alt="Settings Icon">
     </h1>
+    <img id="SettingsButton" class="settings" src="{{ url_for('static', filename='images/settingsDSA.jpg') }}" alt="Settings Icon" width = '30px' height = '30px'>
 
     <form id="movie-form" action="/visualize" method="POST">
         <label for="movie_id">Enter Movie Title:</label>
@@ -80,6 +84,18 @@
     </div>
 
     <div id="bfs-result"></div>
+
+
+    <div class="dijkstra-form">
+        <h2>Dijkstra Search</h2>
+        <label for="startMovie">Start Movie Title:</label>
+        <input type="text" id="startMovie" name="startMovie" required>
+        <label for="targetMovie">Target Movie Title:</label>
+        <input type="text" id="targetMovie" name="targetMovie" required>
+        <button id="dijkstra-button">Find Kevin Bacon Number</button>
+    </div>
+
+    <div id="dijkstra-result"></div>
 
     <script>
         (function () {
@@ -208,6 +224,31 @@
             .catch(error => {
                 console.error('Error:', error);
                 document.getElementById('bfs-result').innerText = 'An error occurred while performing BFS.';
+            });
+        });
+
+        document.getElementById('dijkstra-button').addEventListener('click', function() {
+            const startMovie = document.getElementById('startMovie').value;
+            const targetMovie = document.getElementById('targetMovie').value;
+
+            fetch('/dijkstra', {
+                method: 'POST',
+                body: new URLSearchParams({
+                    start_movie: startMovie,
+                    target_movie: targetMovie
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    document.getElementById('dijkstra-result').innerText = data.message; // Display dijkstra completion message
+                } else {
+                    document.getElementById('dijkstra-result').innerText = data.error || 'An error occurred.';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('dijkstra-result').innerText = 'An error occurred while performing dijkstra.';
             });
         });
     </script>
