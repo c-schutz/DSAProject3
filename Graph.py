@@ -8,6 +8,8 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import json
 from PriorityQueue import PriorityQueue as pq
+
+
 class Graph:
     def __init__(self, movies_file, credits_file):
         self.movies_file = movies_file
@@ -76,9 +78,9 @@ class Graph:
 
         # If a single movie is found, get its ID
         movie_id = matching_movies.iloc[0]['id']
-        return self.visualize_graph_by_id(movie_id, max_connections)
+        return self.visualize_graph_by_id(movie_id, movie_name, max_connections)
 
-    def visualize_graph_by_id(self, movie_id=None, max_connections=15):
+    def visualize_graph_by_id(self, movie_id=None, movie_title=None, max_connections=15):
         fig = make_subplots()
 
         if movie_id is not None:
@@ -160,7 +162,7 @@ class Graph:
             # If a base movie is provided, include shared actors in the hover text
             if movie_id and node != movie_id and subgraph.has_edge(movie_id, node):
                 shared_actors = ', '.join(subgraph[movie_id][node]['actors'])  # Get shared actors
-                node_hover_text = f"Movie: {movie_name}\nShared Actors with {movie_id}: {shared_actors}"
+                node_hover_text = f"Movie: {movie_name}\nShared Actors with {movie_title}: {shared_actors}"
             else:
                 node_hover_text = f"Movie: {movie_name}"
 

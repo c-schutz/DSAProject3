@@ -33,19 +33,21 @@ def visualize():
 @app.route('/visualizeID', methods=['POST'])
 def visualizeID():
     movie_id = request.form.get('movie_id')
+    movie_name = request.form.get('movie_id')
     max_connections = int(request.form.get('max_connections', 15))
 
-    graph_data = movie_graph.visualize_graph_by_id(movie_id, max_connections)
+    graph_data = movie_graph.visualize_graph_by_id(movie_id, movie_name, max_connections)
 
     return jsonify({'graph_data': graph_data})
 
 @app.route('/select_movie', methods=['POST'])
 def select_movie():
     movie_id = request.form.get('movie_id')
+    movie_name = request.form.get('movie_id')
     max_connections = int(request.form.get('max_connections', 15))
 
     # Visualize the graph for the selected movie ID
-    graph_data = movie_graph.visualize_graph_by_id(movie_id, max_connections)
+    graph_data = movie_graph.visualize_graph_by_id(movie_id, movie_name, max_connections)
 
     return jsonify({'graph_data': graph_data})
 
