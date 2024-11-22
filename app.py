@@ -30,14 +30,26 @@ def visualize():
 
     return jsonify({'graph_data': graph_data})
 
+
+def get_movie_title_by_id(movie_id):
+    movie = movie_graph.movies_df.loc[movie_graph.movies_df['id'] == movie_id, 'original_title']
+    return movie.iloc[0]
+
+
 @app.route('/visualizeID', methods=['POST'])
 def visualizeID():
+    # Get the movie ID from the request
     movie_id = request.form.get('movie_id')
     max_connections = int(request.form.get('max_connections', 15))
 
-    graph_data = movie_graph.visualize_graph_by_id(movie_id, max_connections)
+    # Retrieve the original title using the movie_id from your data source
+    movie_name = get_movie_title_by_id(movie_id)
 
-    return jsonify({'graph_data': graph_data})
+    # Call the function to generate the graph data
+    graph_data = movie_graph.visualize_graph_by_id(movie_id, movie_name, max_connections)
+
+    # Return the graph data along with the movie name (optional)
+    return jsonify({'graph_data': graph_data, 'movie_name': movie_name})
 
 @app.route('/select_movie', methods=['POST'])
 def select_movie():
@@ -55,22 +67,8 @@ def bfs():
     target_movie_name = request.form.get('target_movie')
 
     # Perform BFS and return the result
-    movie_graph.find_kevin_bacon_number_bfs(start_movie_name, target_movie_name)
-    return jsonify({'message': f"BFS completed from '{start_movie_name}' to '{target_movie_name}'."})
-
-@app.route('/bfs_graph', methods=['POST'])
-def bfs_graph():
-    start_movie_name = request.form.get('start_movie')
-    target_movie_name = request.form.get('target_movie')
-
-    # Perform BFS and visualize the path
-    result = movie_graph.find_kevin_bacon_number_bfs(start_movie_name, target_movie_name)
-
-    # Assuming you want to return the graph data for the path found
-    if result:
-        return jsonify({'graph_data': result})
-    else:
-        return jsonify({'error': 'No path found.'})
+    graph_data = movie_graph.find_kevin_bacon_number_bfs(start_movie_name, target_movie_name)
+    return jsonify({'graph_data': graph_data})
 
 @app.route('/dijkstra', methods=['POST'])
 def dijkstra():
@@ -78,23 +76,7 @@ def dijkstra():
     target_movie_name = request.form.get('target_movie')
 
     # Perform BFS and return the result
-    movie_graph.dijkstra(start_movie_name, target_movie_name)
-    return jsonify({'message': f"Dijkstra completed from '{start_movie_name}' to '{target_movie_name}'."})
-
-
-@app.route('/dijkstra_graph', methods=['POST'])
-def dijkstra_graph():
-    start_movie_name = request.form.get('start_movie')
-    target_movie_name = request.form.get('target_movie')
-
-    # Perform BFS and visualize the path
-    result = movie_graph.dijkstra(start_movie_name, target_movie_name)
-
-    # Assuming you want to return the graph data for the path found
-    if result:
-        return jsonify({'graph_data': result})
-    else:
-        return jsonify({'error': 'No path found.'})
-
+    graph_data = movie_graph.dijkstra(start_movie_name, target_movie_name)
+    return jsonify({'graph_data': graph_data})
 if __name__ == '__main__':
     app.run(debug=True)
