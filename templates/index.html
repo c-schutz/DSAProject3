@@ -153,15 +153,14 @@
                         if (movie.release_date) {
                             releaseDate = movie.release_date;
                         }
-
                          // Check for Top Cast
                         let movieCast = 'Unknown Cast';
                         if (movie.cast && movie.cast !== 'Unknown Cast') {
                             movieCast = movie.cast;
                         }
-
-                          movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required><label for="movie_${movie.id}">
-                        ${movie.original_title} (ID: ${movie.id}) (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label></li>`;
+                        movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
+                        <label for="movie_${movie.id}">${movie.original_title} (ID: ${movie.id}) (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
+                        </li>`;
             });
                     movieListHTML += '</ul><input type="hidden" name="max_connections" value="15"><button type="submit">Visualize</button></form>';
                     document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
