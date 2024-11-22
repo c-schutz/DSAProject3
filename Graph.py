@@ -241,8 +241,7 @@ class Graph:
 
                 # Visualize the path from start movie to target movie
                 subgraph = self.graph.subgraph(path)  # Create subgraph with the BFS path
-                self.visualize_graph_from_subgraph(subgraph)
-                return
+                return self.visualize_graph_from_subgraph(subgraph)
 
             # Mark current node as visited
             if current_node not in visited:
@@ -343,7 +342,7 @@ class Graph:
                 movie_b_name = movie_names[i + 1]
                 print(f"  {movie_a_name} -> {movie_b_name} (Shared Actors: {', '.join(shared_actors)})")
             subgraph = self.graph.subgraph(path)
-            self.visualize_graph_from_subgraph(subgraph)
+            return self.visualize_graph_from_subgraph(subgraph)
 
     def visualize_graph_from_subgraph(self, subgraph):
         fig = make_subplots()
@@ -414,7 +413,7 @@ class Graph:
         fig.update_layout(showlegend=False)
         fig.update_xaxes(showgrid=False, showticklabels=False)
         fig.update_yaxes(showgrid=False, showticklabels=False)
-        fig.show()
+        return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
 
 if __name__ == "__main__":

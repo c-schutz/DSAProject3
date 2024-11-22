@@ -219,8 +219,10 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.message) {
-                    document.getElementById('bfs-result').innerText = data.message; // Display BFS completion message
+                if (data.graph_data) {
+                    const graphData = JSON.parse(data.graph_data);
+                    Plotly.newPlot('graph', graphData.data, graphData.layout);
+                    document.getElementById('result').innerText = ''; // Clear previous errors
                 } else {
                     document.getElementById('bfs-result').innerText = data.error || 'An error occurred.';
                 }
@@ -244,8 +246,10 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.message) {
-                    document.getElementById('dijkstra-result').innerText = data.message; // Display dijkstra completion message
+                if (data.graph_data) {
+                    const graphData = JSON.parse(data.graph_data);
+                    Plotly.newPlot('graph', graphData.data, graphData.layout);
+                    document.getElementById('result').innerText = ''; // Clear previous errors
                 } else {
                     document.getElementById('dijkstra-result').innerText = data.error || 'An error occurred.';
                 }
