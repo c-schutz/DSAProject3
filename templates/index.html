@@ -130,8 +130,6 @@
                 });
             });
         }());
-
-
         document.getElementById('movie-form').addEventListener('submit', function (event) {
             event.preventDefault();
             const formData = new FormData(this);
@@ -150,8 +148,21 @@
                     // Handle the case where multiple movies are found
                     let movieListHTML = '<h2>Select a Movie</h2><form id="movie-selection-form"><ul>';
                     data.forEach(movie => {
-                        movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required><label for="movie_${movie.id}">${movie.original_title} (ID: ${movie.id})</label></li>`;
-                    });
+                        // Check for Release Date
+                        let releaseDate = 'Unknown Year';
+                        if (movie.release_date) {
+                            releaseDate = movie.release_date;
+                        }
+
+                         // Check for Top Cast
+                        let movieCast = 'Unknown Cast';
+                        if (movie.cast && movie.cast !== 'Unknown Cast') {
+                            movieCast = movie.cast;
+                        }
+
+                          movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required><label for="movie_${movie.id}">
+                        ${movie.original_title} (ID: ${movie.id}) (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label></li>`;
+            });
                     movieListHTML += '</ul><input type="hidden" name="max_connections" value="15"><button type="submit">Visualize</button></form>';
                     document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
                     document.getElementById('graph').innerHTML = ''; // Clear previous graph

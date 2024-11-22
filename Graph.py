@@ -71,8 +71,24 @@ class Graph:
             return json.dumps({'error': f"Movie '{movie_name}' not found."})
 
         if len(matching_movies) > 1:
-            # Return the list of matching movies for user selection
-            return matching_movies[['original_title', 'id']].to_dict(orient='records')
+            # Make a list of matching movies for user selection
+            movie_data = matching_movies[['original_title', 'id', 'release_date', 'cast']].to_dict(orient='records')
+
+            # Add processed release date and cast names to the dictionary
+            for movie in movie_data:
+                movie['release_date'] = movie['release_date'] if pd.notna(movie['release_date']) else 'Unknown Year'
+
+            for idx, row in matching_movies.iterrows():
+                cast_names = [actor['name'] for actor in row['cast'][:5]]  # Get the top 5 actors' names
+                cast_str = ', '.join(cast_names)
+
+                # Find the movie in movie_data by matching IDs or another unique identifier
+                for movie in movie_data:
+                    if movie['id'] == row['id']:
+                        movie['cast'] = cast_str  # Update the cast in the movie data
+
+            # return list of movie data including release date and cast
+            return movie_data
 
         # If a single movie is found, get its ID
         movie_id = matching_movies.iloc[0]['id']
@@ -418,16 +434,16 @@ class Graph:
 if __name__ == "__main__":
     movies_file = "movies_metadata.csv"
     credits_file = "credits.csv"
-    # movie_graph = Graph(movies_file, credits_file)
-    #
-    # print("Begin Read")
-    # movie_graph.read_data()
-    # print("Read Finished")
-    #
-    # print("Begin Build")
-    # movie_graph.build_graph()
-    # print("Build Finished")
+    movie_graph = Graph(movies_file, credits_file)
 
-    # movie_graph.visualize_graph("862", 15)
-    # movie_graph.find_kevin_bacon_number_bfs("Minions", "Devil in a Blue Dress")
-    # movie_graph.dijkstra("Minions", "Devil in a Blue Dress")
+    print("Begin Read")
+    movie_graph.read_data()
+    print("Read Finished")
+
+    print("Begin Build")
+    movie_graph.build_graph()
+    print("Build Finished")
+
+   # movie_graph.visualize_graph("862", 15)
+    movie_graph.find_kevin_bacon_number_bfs("Moana", "Devil in a Blue Dress")
+   # movie_graph.dijkstra("Minions", "Devil in a Blue Dress")
