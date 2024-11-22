@@ -133,43 +133,46 @@
 
 
         document.getElementById('movie-form').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const formData = new FormData(this);
-            fetch('/visualize', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => {
-                    if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (Array.isArray(data)) {
-                    // Handle the case where multiple movies are found
-                    let movieListHTML = '<h2>Select a Movie</h2><form id="movie-selection-form"><ul>';
-                    data.forEach(movie => {
-                        movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required><label for="movie_${movie.id}">${movie.original_title} (ID: ${movie.id})</label></li>`;
-                    });
-                    movieListHTML += '</ul><input type="hidden" name="max_connections" value="15"><button type="submit">Visualize</button></form>';
-                    document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
-                    document.getElementById('graph').innerHTML = ''; // Clear previous graph
+    event.preventDefault();
+    const formData = new FormData(this);
+    fetch('/visualize', {
+        method: 'POST',
+        body: formData
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (Array.isArray(data)) {
+                // Handle the case where multiple movies are found
+                let movieListHTML = '<h2>Select a Movie</h2><form id="movie-selection-form"><ul>';
+                data.forEach(movie => {
+                    movieListHTML += `<li>
+                        <input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
+                        <label for="movie_${movie.id}">${movie.original_title} (ID: ${movie.id})</label>
+                    </li>`;
+                });
+                movieListHTML += '</ul><input type="hidden" name="max_connections" value="15"><button type="submit">Visualize</button></form>';
+                document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
+                document.getElementById('graph').innerHTML = ''; // Clear previous graph
 
-                    // Add event listener for the movie selection form
-                    document.getElementById('movie-selection-form').addEventListener('submit', function(e) {
-                        e.preventDefault();
-                        const selectedMovieId = this.movie_id.value;
-                        const maxConnections = this.max_connections.value;
+                // Add event listener for the movie selection form
+                document.getElementById('movie-selection-form').addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const selectedMovieId = this.movie_id.value;
+                    const maxConnections = this.max_connections.value;
 
-                        // Fetch the graph data for the selected movie
-                        fetch('/visualizeID', {
-                            method: 'POST',
-                            body: new URLSearchParams({
-                                movie_id: selectedMovieId,
-                                max_connections: maxConnections
-                            })
+                    // Fetch the graph data for the selected movie
+                    fetch('/visualizeID', {
+                        method: 'POST',
+                        body: new URLSearchParams({
+                            movie_id: selectedMovieId,
+                            max_connections: maxConnections
                         })
+                    })
                         .then(response => response.json())
                         .then(data => {
                             if (data.graph_data) {
@@ -186,21 +189,22 @@
                             console.error('Error:', error);
                             document.getElementById('result').innerText = 'An error occurred while fetching the data.';
                         });
-                    });
-                } else if (data.graph_data) {
-                    // If a single movie was found, plot it immediately
-                    const graphData = JSON.parse(data.graph_data);
-                    Plotly.newPlot('graph', graphData.data, graphData.layout);
-                    document.getElementById('result').innerText = ''; // Clear previous errors
-                } else {
-                    document.getElementById('result').innerText = data.error || 'An error occurred.';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('result').innerText = 'An error occurred while fetching the data.';
-            });
+                });
+            } else if (data.graph_data) {
+                // If a single movie was found, plot it immediately
+                const graphData = JSON.parse(data.graph_data);
+                Plotly.newPlot('graph', graphData.data, graphData.layout);
+                document.getElementById('result').innerText = ''; // Clear previous errors
+            } else {
+                document.getElementById('result').innerText = data.error || 'An error occurred.';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('result').innerText = 'An error occurred while fetching the data.';
         });
+});
+
 
         document.getElementById('bfs-button').addEventListener('click', function() {
             const startMovie = document.getElementById('start_movie').value;
