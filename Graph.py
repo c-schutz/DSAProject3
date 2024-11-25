@@ -1,14 +1,16 @@
 import ast
 from collections import defaultdict
-
+import heapq
 import networkx as nx
 import pandas as pd
 import plotly
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import json
+import pickle
 from PriorityQueue import PriorityQueue as pq
-
+import os
+import ast
 
 class Graph:
     def __init__(self, movies_file, credits_file):
@@ -18,26 +20,66 @@ class Graph:
         self.credits_df = None
         self.graph = nx.Graph()
 
-    def read_data(self):
+
+
+    def read_data(self, filename="processed_data.pkl"):
+        """
+        Reads and processes the movie and credits data. If a processed file exists, load it to save time.
+        """
+        # Check if the preprocessed file exists
+        if os.path.exists(filename):
+            print(f"Loading preprocessed data from {filename}...")
+            self.movies_df = pd.read_pickle(filename)
+            return
+
+        # Process data if no preprocessed file exists
+        print("Preprocessed file not found. Reading and processing raw data...")
         self.movies_df = pd.read_csv(self.movies_file, low_memory=False)
         self.credits_df = pd.read_csv(self.credits_file, low_memory=False)
 
         self.movies_df['id'] = self.movies_df['id'].astype(str)
         self.credits_df['id'] = self.credits_df['id'].astype(str)
 
-
         self.credits_df['cast'] = self.credits_df['cast'].apply(ast.literal_eval)
         self.credits_df['crew'] = self.credits_df['crew'].apply(ast.literal_eval)
 
+        # Merge movies and credits data
         self.movies_df = self.movies_df.merge(self.credits_df, on='id', how='inner')
 
+        # Save the processed data for future use
+        print(f"Saving preprocessed data to {filename}...")
+        self.movies_df.to_pickle(filename)
 
-    def build_graph(self):
+    def save_graph(self, filename="graph.pkl"):
         """
-        Build a graph where movies are connected if they share actors.
-        Each edge is weighted by the number of actors they share, and
-        the list of actors is stored for hover information.
+        Save the built graph to a file.
         """
+        with open(filename, "wb") as f:
+            pickle.dump(self.graph, f)
+        print(f"Graph saved to {filename}")
+
+    def load_graph(self, filename="graph.pkl"):
+        """
+        Load a graph from a file. Returns True if successful, False otherwise.
+        """
+        try:
+            with open(filename, "rb") as f:
+                self.graph = pickle.load(f)
+            print(f"Graph loaded from {filename}")
+            return True
+        except FileNotFoundError:
+            print("No saved graph found. Building a new graph.")
+            return False
+
+    def build_graph(self, filename="graph.pkl"):
+        """
+        Build a graph if no saved graph exists; otherwise, load the saved graph.
+        """
+        # Try to load the graph
+        if self.load_graph(filename):
+            return  # Graph was successfully loaded, no need to rebuild
+
+        # If no graph exists, build it
         actor_to_movies = {}
 
         # Create a mapping of actor to movies they appear in
@@ -51,16 +93,18 @@ class Graph:
                     actor_to_movies[actor_name] = []
                 actor_to_movies[actor_name].append(movie_id)
 
-        # Add edges between movies based on shared actors, and weight the edges by the number of shared actors
+        # Add edges between movies based on shared actors
         for actor, movies in actor_to_movies.items():
             for i, movie_a in enumerate(movies):
                 for movie_b in movies[i + 1:]:
                     if self.graph.has_edge(movie_a, movie_b):
-                        self.graph[movie_a][movie_b]['weight'] += 1  # Increment weight if an edge already exists
-                        self.graph[movie_a][movie_b]['actors'].append(actor)  # Add actor to the shared list
+                        self.graph[movie_a][movie_b]['weight'] += 1  # Increment weight
+                        self.graph[movie_a][movie_b]['actors'].append(actor)  # Add actor
                     else:
-                        self.graph.add_edge(movie_a, movie_b, weight=1, actor=actor,
-                                            actors=[actor])  # Initialize weight and actors
+                        self.graph.add_edge(movie_a, movie_b, weight=1, actor=actor, actors=[actor])  # Initialize edge
+
+        # Save the graph after building
+        self.save_graph(filename)
 
     def visualize_graph(self, movie_name=None, max_connections=15):
         if movie_name is None:
@@ -271,7 +315,6 @@ class Graph:
         print(f"'{target_movie_name}' is not reachable from '{start_movie_name}'.")
 
     def dijkstra(self, start_movie_name, target_movie_name):
-
         def disambiguate_movie(movie_name):
             matching_movies = self.movies_df[self.movies_df['original_title'].str.lower() == movie_name.lower()]
 
@@ -432,6 +475,8 @@ class Graph:
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
 
+import time
+
 if __name__ == "__main__":
     movies_file = "movies_metadata.csv"
     credits_file = "credits.csv"
@@ -445,6 +490,16 @@ if __name__ == "__main__":
     movie_graph.build_graph()
     print("Build Finished")
 
-   # movie_graph.visualize_graph("862", 15)
-    movie_graph.find_kevin_bacon_number_bfs("Moana", "Devil in a Blue Dress")
-   # movie_graph.dijkstra("Minions", "Devil in a Blue Dress")
+    # Measure BFS timing
+    print("\nRunning BFS:")
+    start_time = time.time()
+    movie_graph.find_kevin_bacon_number_bfs("Avatar", "Toy Story")
+    end_time = time.time()
+    print(f"BFS took {end_time - start_time:.4f} seconds.")
+
+    # Measure Dijkstra timing
+    print("\nRunning Dijkstra:")
+    start_time = time.time()
+    movie_graph.dijkstra("Avatar", "Toy Story")
+    end_time = time.time()
+    print(f"Dijkstra's algorithm took {end_time - start_time:.4f} seconds.")
