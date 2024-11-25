@@ -17,17 +17,13 @@
             border: 1px solid #ccc;
             margin-top: 20px;
         }
-        #result, #bfs-result {
+        #result, #bfs-result, #dijkstra-result {
             color: red;
             margin-top: 10px;
         }
-        #result, #dijkstra-result {
-            color: red;
-            margin-top: 10px;
-        }
-        h1.flex {
+        h1 {
             display: flex;
-            gap : 1450px;
+            justify-content: space-between;
             align-items: center;
         }
         img.settings:hover {
@@ -36,45 +32,50 @@
         h1 img.settings {
             width: 30px;
             height: 30px;
-            transition-property: opacity;
-            transition-duration: .3s;
-            transition-timing-function: ease;
-            transition-delay: 0s;
+            transition: opacity 0.3s ease;
         }
-        body select{
+        body select, button {
             border: 1px solid #ccc;
-            border-radius: 10px;
-            box-shadow: 5px 5px 5px darkgrey;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
         }
-        body select:hover{
-            opacity: 0.5;
+        select:hover, button:hover {
+            opacity: 0.7;
         }
-        body option:hover{
-            opacity: 0.5;
+        .form-section {
+            display: none;
+            margin-top: 20px;
         }
-        .bfs-form {
-            margin-top: 30px;
+        .form-section.active {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <h1 class="flex">
+    <h1>
         Movie Graph Visualizer
         <img id="SettingsButton" class="settings" src="{{ url_for('static', filename='images/settingsDSA.jpg') }}" alt="Settings Icon">
     </h1>
 
-    <form id="movie-form" action="/visualize" method="POST">
-        <label for="movie_id">Enter Movie Title:</label>
-        <input type="text" id="movie_id" name="movie_id" required>
-        <label for="max_connections">Max Connections:</label>
-        <input type="number" id="max_connections" name="max_connections" value="15" min="1">
-        <button type="submit">Visualize</button>
-    </form>
+    <label for="feature-select">Choose a Feature:</label>
+    <select id="feature-select">
+        <option value="visualization-form">Visualization</option>
+        <option value="bfs-form">Breadth-First Search</option>
+        <option value="dijkstra-form">Dijkstra Search</option>
+    </select>
 
-    <div id="result"></div>
-    <div id="graph"></div>
+    <div id="visualization-form" class="form-section active">
+        <form id="movie-form" action="/visualize" method="POST">
+            <label for="movie_id">Enter Movie Title:</label>
+            <input type="text" id="movie_id" name="movie_id" required>
+            <label for="max_connections">Max Connections:</label>
+            <input type="number" id="max_connections" name="max_connections" value="15" min="1">
+            <button type="submit">Visualize</button>
+        </form>
+    </div>
 
-    <div class="bfs-form">
+    <div id="bfs-form" class="form-section">
         <h2>Breadth-First Search</h2>
         <label for="start_movie">Start Movie Title:</label>
         <input type="text" id="start_movie" name="start_movie" required>
@@ -83,10 +84,7 @@
         <button id="bfs-button">Find Kevin Bacon Number</button>
     </div>
 
-    <div id="bfs-result"></div>
-
-
-    <div class="dijkstra-form">
+    <div id="dijkstra-form" class="form-section">
         <h2>Dijkstra Search</h2>
         <label for="startMovie">Start Movie Title:</label>
         <input type="text" id="startMovie" name="startMovie" required>
@@ -95,41 +93,20 @@
         <button id="dijkstra-button">Find Kevin Bacon Number</button>
     </div>
 
-    <div id="dijkstra-result"></div>
+    <div id="result"></div>
+    <div id="graph"></div>
 
     <script>
-        (function () {
-            let flag = false;
-            document.addEventListener('DOMContentLoaded', function () {
-                const settingsButton = document.getElementById('SettingsButton');
-                settingsButton.addEventListener('click', function () {
-                    flag = !flag;
-                    settingsButton.classList.remove('settings');
-                    void settingsButton.offsetWidth;
-                    settingsButton.classList.add('settings');
-
-                    if (flag) {
-                        const selectElement = document.createElement('select');
-                        selectElement.name = "settings";
-                        selectElement.id = "settings-select";
-                        selectElement.innerHTML = `
-                            <option value="">Options</option>
-                            <option value="dog">One Movie</option>
-                            <option value="cat">Two Movies</option>
-                        `;
-                        selectElement.style.position = 'absolute';
-                        selectElement.style.top = '60px';
-                        selectElement.style.left = '1725px';
-                        document.body.appendChild(selectElement);
-                    } else {
-                        const existingSelect = document.getElementById('settings-select');
-                        if (existingSelect) {
-                            existingSelect.remove();
-                        }
-                    }
-                });
+        // Handle switching between forms
+        document.getElementById('feature-select').addEventListener('change', function() {
+            const selectedValue = this.value;
+            document.querySelectorAll('.form-section').forEach(section => {
+                section.classList.remove('active');
             });
-        }());
+            document.getElementById(selectedValue).classList.add('active');
+        });
+
+        // Visualization form submission
         document.getElementById('movie-form').addEventListener('submit', function (event) {
             event.preventDefault();
             const formData = new FormData(this);
@@ -212,6 +189,7 @@
             });
         });
 
+        // BFS button click
         document.getElementById('bfs-button').addEventListener('click', function() {
             const startMovie = document.getElementById('start_movie').value;
             const targetMovie = document.getElementById('target_movie').value;
@@ -225,13 +203,10 @@
             })
             .then(response => response.json())
             .then(data => {
-            if (data.graph_data) {
-                // Parse the graph_data string into a JSON object
-                const graphData = JSON.parse(data.graph_data);
-                // Use Plotly to create the graph
-                Plotly.newPlot('graph', graphData.data, graphData.layout);
-                document.getElementById('result').innerText = ''; // Clear previous errors
-            } else {
+                if (data.graph_data) {
+                    const graphData = JSON.parse(data.graph_data);
+                    Plotly.newPlot('graph', graphData.data, graphData.layout);
+                } else {
                     document.getElementById('bfs-result').innerText = data.error || 'An error occurred.';
                 }
             })
@@ -241,6 +216,7 @@
             });
         });
 
+        // Dijkstra button click
         document.getElementById('dijkstra-button').addEventListener('click', function() {
             const startMovie = document.getElementById('startMovie').value;
             const targetMovie = document.getElementById('targetMovie').value;
@@ -255,18 +231,15 @@
             .then(response => response.json())
             .then(data => {
                 if (data.graph_data) {
-                    // Parse the graph_data string into a JSON object
                     const graphData = JSON.parse(data.graph_data);
-                    // Use Plotly to create the graph
                     Plotly.newPlot('graph', graphData.data, graphData.layout);
-                    document.getElementById('result').innerText = ''; // Clear previous errors
                 } else {
                     document.getElementById('dijkstra-result').innerText = data.error || 'An error occurred.';
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                document.getElementById('dijkstra-result').innerText = 'An error occurred while performing dijkstra.';
+                document.getElementById('dijkstra-result').innerText = 'An error occurred while performing Dijkstra.';
             });
         });
     </script>
