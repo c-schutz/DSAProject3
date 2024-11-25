@@ -26,14 +26,6 @@
             justify-content: space-between;
             align-items: center;
         }
-        img.settings:hover {
-            opacity: 0.5;
-        }
-        h1 img.settings {
-            width: 30px;
-            height: 30px;
-            transition: opacity 0.3s ease;
-        }
         body select, button {
             border: 1px solid #ccc;
             border-radius: 5px;
@@ -55,7 +47,6 @@
 <body>
     <h1>
         Movie Graph Visualizer
-        <img id="SettingsButton" class="settings" src="{{ url_for('static', filename='images/settingsDSA.jpg') }}" alt="Settings Icon">
     </h1>
 
     <label for="feature-select">Choose a Feature:</label>
@@ -66,6 +57,7 @@
     </select>
 
     <div id="visualization-form" class="form-section active">
+        <h2>Graph Visualization</h2>
         <form id="movie-form" action="/visualize" method="POST">
             <label for="movie_id">Enter Movie Title:</label>
             <input type="text" id="movie_id" name="movie_id" required>
