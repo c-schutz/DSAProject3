@@ -340,42 +340,47 @@ class Graph:
                 except ValueError:
                     print("Invalid input. Please enter a number.")
 
-        #make sure start and target movie_id's are proper and specified
+        # Ensure start and target movie IDs are specified
         start_movie_id = disambiguate_movie(start_movie_name)
         target_movie_id = disambiguate_movie(target_movie_name)
 
-        #output for improper start/target movie name
+        # Output for improper start/target movie name
         if start_movie_id is None or target_movie_id is None:
             print("Your movie doesn't exist")
             return
 
-        #initialize distances
-        distances = {node: float('inf') for node in self.graph.nodes}#d[v]
-        previous_nodes = {node: None for node in self.graph.nodes}#p[v]
+        # Initialize distances and previous nodes
+        distances = {node: float('inf') for node in self.graph.nodes}
+        previous_nodes = {node: None for node in self.graph.nodes}
         distances[start_movie_id] = 0
 
-        #create priority queue
-        priority_queue = pq()
-        priority_queue.insert((0, start_movie_id))
+        # Create a priority queue using heapq
+        priority_queue = []
+        heapq.heappush(priority_queue, (0, start_movie_id))  # (distance, node)
 
-        found = False
-        while not priority_queue.checkEmpty():
-            current_distance, current_node = priority_queue.pop()
-            adjacent_movies = self.graph.neighbors(current_node)
+        while priority_queue:
+            current_distance, current_node = heapq.heappop(priority_queue)
+
+            # If we reached the target node, we can stop
             if current_node == target_movie_id:
                 break
-            # if found:
-            #     break
-            for node in adjacent_movies:
-                edge_weight = self.graph[current_node][node]['weight']
-                if distances[node] > distances[current_node] + edge_weight:
-                    distances[node] = distances[current_node] + edge_weight
-                    previous_nodes[node] = current_node
-                    # if node == target_movie_id:
-                    #     found = True
-                    #     break
-                    priority_queue.insert((edge_weight, node))
 
+            # If the distance is greater than the recorded distance, continue
+            if current_distance > distances[current_node]:
+                continue
+
+            # Iterate over neighbors
+            for neighbor in self.graph.neighbors(current_node):
+                edge_weight = self.graph[current_node][neighbor]['weight']
+                new_distance = distances[current_node] + edge_weight
+
+                # Only consider this new path if it's better
+                if new_distance < distances[neighbor]:
+                    distances[neighbor] = new_distance
+                    previous_nodes[neighbor] = current_node
+                    heapq.heappush(priority_queue, (new_distance, neighbor))
+
+        # Reconstruct the path
         path = []
         current_node = target_movie_id
         while current_node is not None:
@@ -383,6 +388,7 @@ class Graph:
             current_node = previous_nodes[current_node]
         path = path[::-1]
 
+        # Output results
         if distances[target_movie_id] == float('inf'):
             print(f"No path found between '{start_movie_name}' and '{target_movie_name}'.")
         else:
@@ -400,6 +406,8 @@ class Graph:
                 movie_a_name = movie_names[i]
                 movie_b_name = movie_names[i + 1]
                 print(f"  {movie_a_name} -> {movie_b_name} (Shared Actors: {', '.join(shared_actors)})")
+
+            # Visualize the subgraph if needed
             subgraph = self.graph.subgraph(path)
             return self.visualize_graph_from_subgraph(subgraph)
 
