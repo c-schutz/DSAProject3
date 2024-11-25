@@ -1,5 +1,3 @@
-import ast
-from collections import defaultdict
 import heapq
 import networkx as nx
 import pandas as pd
@@ -18,7 +16,6 @@ class Graph:
         self.movies_df = None
         self.credits_df = None
         self.graph = nx.Graph()
-
 
 
     def read_data(self, filename="processed_data.pkl"):
@@ -222,11 +219,11 @@ class Graph:
             # If a base movie is provided, include shared actors in the hover text
             if movie_id and node != movie_id and subgraph.has_edge(movie_id, node):
                 shared_actors = ', '.join(subgraph[movie_id][node]['actors'])  # Get shared actors
-                node_text = (f"Movie: {movie_name}")
-                node_hover_text = (f"Shared Actors with {movie_title}: {shared_actors}")
+                node_text = f"Movie: {movie_name}"
+                node_hover_text = f"Shared Actors with {movie_title}: {shared_actors}"
             else:
                 node_text = f"Movie: {movie_name}"
-                node_hover_text = ("")
+                node_hover_text = ""
 
             node_trace['text'] += tuple([node_text])  # Add hover text for the node
             node_trace['hovertext']  += tuple([node_hover_text])
@@ -484,7 +481,6 @@ class Graph:
         fig.update_xaxes(showgrid=False, showticklabels=False)
         fig.update_yaxes(showgrid=False, showticklabels=False)
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-
 
 import time
 

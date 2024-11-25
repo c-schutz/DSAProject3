@@ -1,7 +1,4 @@
 from flask import Flask, render_template, request, jsonify
-import ast
-import networkx as nx
-import pandas as pd
 from Graph import Graph  # Assuming your Graph class is in graph.py
 
 app = Flask(__name__)
