@@ -8,7 +8,6 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import json
 import pickle
-from PriorityQueue import PriorityQueue as pq
 import os
 import ast
 
