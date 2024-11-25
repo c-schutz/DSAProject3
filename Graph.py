@@ -486,6 +486,7 @@ class Graph:
 import time
 
 if __name__ == "__main__":
+    full_time = time.time()
     movies_file = "movies_metadata.csv"
     credits_file = "credits.csv"
     movie_graph = Graph(movies_file, credits_file)
@@ -511,3 +512,6 @@ if __name__ == "__main__":
     movie_graph.dijkstra("Avatar", "Toy Story")
     end_time = time.time()
     print(f"Dijkstra's algorithm took {end_time - start_time:.4f} seconds.")
+    finished_time = time.time()
+
+    print(f"Entire main function took {finished_time - full_time:.4f} seconds.")
