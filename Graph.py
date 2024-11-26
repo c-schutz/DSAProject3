@@ -224,10 +224,11 @@ class Graph:
         for node in subgraph.nodes():
             # Fetch the movie name (title) and budget from the movies dataframe
             movie_name = self.movies_df.loc[self.movies_df['id'] == node, 'original_title'].values
-            movie_budget = self.movies_df.loc[
-                self.movies_df['id'] == node, 'budget'].values  # Assuming 'rating' column exists
+            movie_budget = self.movies_df.loc[self.movies_df['id'] == node, 'budget'].values  # Assuming 'rating' column exists
+            movie_date = self.movies_df.loc[self.movies_df['id'] == node, 'release_date'].values[0]
             movie_name = movie_name[0] if movie_name.size > 0 else node  # Fallback to node ID if no name found
             budget_value = float(movie_budget[0]) if movie_budget.size > 0 else 0  # Fallback to 0 if no rating found
+            year_value = float(movie_date.split('/')[-1]) if len(movie_date) > 0 else 0
 
             x, y = pos[node]
             node_trace['x'] += tuple([x])
@@ -235,6 +236,8 @@ class Graph:
             if len(self.options) > 0:
                 if self.options[0] == "Budget Value":
                     node_trace['marker']['color'] += tuple([budget_value])  # Set color based on rating
+                elif self.options[0] == "Date Released":
+                    node_trace['marker']['color'] += tuple([year_value])
                 else:
                     node_trace['marker']['color'] += tuple([1])
             else:
