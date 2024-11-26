@@ -75,5 +75,19 @@ def dijkstra():
     # Perform BFS and return the result
     graph_data = movie_graph.dijkstra(start_movie_name, target_movie_name)
     return jsonify({'graph_data': graph_data})
+
+@app.route('/handle-options', methods=['POST'])
+def handle_options():
+    # Get the selected options from the request
+    data = request.get_json()
+    selected_options = data.get('selectedOptions', [])
+
+    # Perform any action based on the selected options
+    print(f"Selected options: {selected_options}")
+
+    # Return a response
+    return jsonify({
+        "message": f"You selected: {', '.join(selected_options)}"
+    })
 if __name__ == '__main__':
     app.run(debug=True)

@@ -35,6 +35,10 @@
         select:hover, button:hover {
             opacity: 0.7;
         }
+        .form-group {
+            margin-bottom: 20px; /* Add spacing between form sections */
+            text-align: right; /* Align content to the right */
+        }
         .form-section {
             display: none;
             margin-top: 20px;
@@ -48,13 +52,66 @@
     <h1>
         Movie Graph Visualizer
     </h1>
+    <div class="form-group">
+        <label for="movie_options">Choose one or more options:</label>
+        <div id="movie_options" class="checkbox-group">
+            <label>
+                <input type="checkbox" name="options" value="Date Released">
+                Date Released
+            </label>
+            <label>
+                <input type="checkbox" name="options" value="Production Company">
+                Production Company
+            </label>
+            <label>
+                <input type="checkbox" name="options" value="Rating">
+                Rating
+            </label>
+            <label>
+                <input type="checkbox" name="options" value="Option 4">
+                Option 4
+            </label>
+        </div>
+    </div>
 
-    <label for="feature-select">Choose a Feature:</label>
-    <select id="feature-select">
-        <option value="visualization-form">Visualization</option>
-        <option value="bfs-form">Breadth-First Search</option>
-        <option value="dijkstra-form">Dijkstra Search</option>
-    </select>
+    <div id="check"></div>
+
+    <script>
+        // Add event listeners to checkboxes
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                // Get all selected options
+                const selectedOptions = Array.from(
+                    document.querySelectorAll('input[type="checkbox"]:checked')
+                ).map(input => input.value);
+
+                // Send selected options to the backend
+                fetch('/handle-options', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ selectedOptions }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Display the response from the backend
+                    document.getElementById('result').innerText = data.message;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('result').innerText = 'An error occurred.';
+                });
+            });
+        });
+    </script>
+
+        <label for="feature-select">Choose a Feature:</label>
+        <select id="feature-select">
+            <option value="visualization-form">Visualization</option>
+            <option value="bfs-form">Breadth-First Search</option>
+            <option value="dijkstra-form">Dijkstra Search</option>
+        </select>
 
     <div id="visualization-form" class="form-section active">
         <h2>Graph Visualization</h2>
