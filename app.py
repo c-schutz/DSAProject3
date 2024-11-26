@@ -58,22 +58,35 @@ def select_movie():
 
     return jsonify({'graph_data': graph_data})
 
+@app.route('/get_movie_list', methods=['POST'])
+def get_movie_list():
+    start_movie_name = request.form.get('start_movie')
+    target_movie_name = request.form.get('target_movie')
+
+    start_movie_data = movie_graph.get_movie_list(start_movie_name)
+    target_movie_data = movie_graph.get_movie_list(target_movie_name)
+    return jsonify({'start_movie_data': start_movie_data, 'target_movie_data': target_movie_data})
+
 @app.route('/bfs', methods=['POST'])
 def bfs():
     start_movie_name = request.form.get('start_movie')
     target_movie_name = request.form.get('target_movie')
+    start_movie_id = request.form.get('start_movie_id')
+    target_movie_id = request.form.get('target_movie_id')
 
     # Perform BFS and return the result
-    graph_data = movie_graph.find_kevin_bacon_number_bfs(start_movie_name, target_movie_name)
+    graph_data = movie_graph.find_kevin_bacon_number_bfs(start_movie_name, target_movie_name, start_movie_id, target_movie_id)
     return jsonify({'graph_data': graph_data})
 
 @app.route('/dijkstra', methods=['POST'])
 def dijkstra():
-    start_movie_name = request.form.get('start_movie')
+    start_movie_name = request.form.get('start_ovie')
     target_movie_name = request.form.get('target_movie')
+    start_movie_id = request.form.get('start_movie_id')
+    target_movie_id = request.form.get('target_movie_id')
 
-    # Perform BFS and return the result
-    graph_data = movie_graph.dijkstra(start_movie_name, target_movie_name)
+    # Perform dijkstra and return the result
+    graph_data = movie_graph.dijkstra(start_movie_name, target_movie_name, start_movie_id,target_movie_id)
     return jsonify({'graph_data': graph_data})
 
 @app.route('/handle-options', methods=['POST'])

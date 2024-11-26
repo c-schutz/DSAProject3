@@ -102,7 +102,8 @@ class Graph:
         # Save the graph after building
         self.save_graph(filename)
 
-    def visualize_graph(self, movie_name=None, max_connections=15):
+    # function to see if there are duplicate movies
+    def get_movie_list(self, movie_name):
         if movie_name is None:
             return json.dumps({'error': 'No movie name provided.'})
 
@@ -131,10 +132,25 @@ class Graph:
 
             # return list of movie data including release date and cast
             return movie_data
+        # If a single movie is found, return its ID
+        return matching_movies.iloc[0]['id']
+    def visualize_graph(self, movie_name=None, max_connections=15):
+        if movie_name is None:
+            return json.dumps({'error': 'No movie name provided.'})
+
+        # Find matching movies
+        matching_movies = self.movies_df[self.movies_df['original_title'].str.lower() == movie_name.lower()]
+
+        if matching_movies.empty:
+            return json.dumps({'error': f"Movie '{movie_name}' not found."})
+        # if there are duplicate movies gets the data for each movie from other function
+        if len(matching_movies) > 1:
+            return self.get_movie_list(movie_name)
 
         # If a single movie is found, get its ID
         movie_id = matching_movies.iloc[0]['id']
-        return self.visualize_graph_by_id(movie_id, movie_name, max_connections)
+        # returns original title from dataset so there's no capitalization errors
+        return self.visualize_graph_by_id(movie_id, matching_movies.iloc[0]['original_title'], max_connections)
 
     def visualize_graph_by_id(self, movie_id=None, movie_title=None, max_connections=15):
         fig = make_subplots()
@@ -238,36 +254,37 @@ class Graph:
         # Return the figure as JSON
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
-    def find_kevin_bacon_number_bfs(self, start_movie_name, target_movie_name):
-        # Helper function to disambiguate movie titles
-        def disambiguate_movie(movie_name):
-            matching_movies = self.movies_df[self.movies_df['original_title'] == movie_name]
+    # Helper function to disambiguate movie titles
+    def disambiguate_movie(self, movie_name):
+        matching_movies = self.movies_df[self.movies_df['original_title'].str.lower() == movie_name.lower()]
 
-            if matching_movies.empty:
-                print(f"Movie '{movie_name}' not found.")
-                return None
+        if matching_movies.empty:
+            print(f"Movie '{movie_name}' not found.")
+            return None
 
-            if len(matching_movies) == 1:
-                return matching_movies.iloc[0]['id']
+        if len(matching_movies) == 1:
+            return matching_movies.iloc[0]['id']
 
-            print(f"Multiple movies found with the title '{movie_name}':")
-            for idx, row in matching_movies.iterrows():
-                cast_names = [actor['name'] for actor in row['cast'][:5]]  # Show up to 5 actors for clarity
-                print(
-                    f"  [{idx}] {row['original_title']} ({row['release_date'] if pd.notna(row['release_date']) else 'Unknown Year'})")
-                print(f"      Cast: {', '.join(cast_names)}")
+        print(f"Multiple movies found with the title '{movie_name}':")
+        for idx, row in matching_movies.iterrows():
+            cast_names = [actor['name'] for actor in row['cast'][:5]]
+            print(
+                f"  [{idx}] {row['original_title']} ({row['release_date'] if pd.notna(row['release_date']) else 'Unknown Year'})")
+            print(f"      Cast: {', '.join(cast_names)}")
 
-            while True:
-                try:
-                    choice = int(input("Enter the number corresponding to the correct movie: "))
-                    if choice in matching_movies.index:
-                        return matching_movies.loc[choice, 'id']
-                except ValueError:
-                    print("Invalid input. Please enter a number.")
-
+        while True:
+            try:
+                choice = int(input("Enter the number corresponding to the correct movie: "))
+                if choice in matching_movies.index:
+                    return matching_movies.loc[choice, 'id']
+            except ValueError:
+                print("Invalid input. Please enter a number.")
+    def find_kevin_bacon_number_bfs(self, start_movie_name, target_movie_name, start_movie_id=None, target_movie_id=None):
         # Disambiguate the start and target movies
-        start_movie_id = disambiguate_movie(start_movie_name)
-        target_movie_id = disambiguate_movie(target_movie_name)
+        if start_movie_id == None:
+            start_movie_id = self.disambiguate_movie(start_movie_name)
+        if target_movie_id == None:
+            target_movie_id = self.disambiguate_movie(target_movie_name)
 
         if start_movie_id is None or target_movie_id is None:
             return
@@ -314,35 +331,12 @@ class Graph:
 
         print(f"'{target_movie_name}' is not reachable from '{start_movie_name}'.")
 
-    def dijkstra(self, start_movie_name, target_movie_name):
-        def disambiguate_movie(movie_name):
-            matching_movies = self.movies_df[self.movies_df['original_title'].str.lower() == movie_name.lower()]
-
-            if matching_movies.empty:
-                print(f"Movie '{movie_name}' not found.")
-                return None
-
-            if len(matching_movies) == 1:
-                return matching_movies.iloc[0]['id']
-
-            print(f"Multiple movies found with the title '{movie_name}':")
-            for idx, row in matching_movies.iterrows():
-                cast_names = [actor['name'] for actor in row['cast'][:5]]
-                print(
-                    f"  [{idx}] {row['original_title']} ({row['release_date'] if pd.notna(row['release_date']) else 'Unknown Year'})")
-                print(f"      Cast: {', '.join(cast_names)}")
-
-            while True:
-                try:
-                    choice = int(input("Enter the number corresponding to the correct movie: "))
-                    if choice in matching_movies.index:
-                        return matching_movies.loc[choice, 'id']
-                except ValueError:
-                    print("Invalid input. Please enter a number.")
-
+    def dijkstra(self, start_movie_name, target_movie_name, start_movie_id=None, target_movie_id=None):
         # Ensure start and target movie IDs are specified
-        start_movie_id = disambiguate_movie(start_movie_name)
-        target_movie_id = disambiguate_movie(target_movie_name)
+        if start_movie_id == None:
+            start_movie_id = self.disambiguate_movie(start_movie_name)
+        if target_movie_id == None:
+            target_movie_id = self.disambiguate_movie(target_movie_name)
 
         # Output for improper start/target movie name
         if start_movie_id is None or target_movie_id is None:
