@@ -292,9 +292,9 @@ class Graph:
                 print("Invalid input. Please enter a number.")
     def find_kevin_bacon_number_bfs(self, start_movie_name, target_movie_name, start_movie_id=None, target_movie_id=None):
         # Disambiguate the start and target movies
-        if start_movie_id == None:
+        if start_movie_id is None:
             start_movie_id = self.disambiguate_movie(start_movie_name)
-        if target_movie_id == None:
+        if target_movie_id is None:
             target_movie_id = self.disambiguate_movie(target_movie_name)
 
         if start_movie_id is None or target_movie_id is None:
@@ -344,9 +344,9 @@ class Graph:
 
     def dijkstra(self, start_movie_name, target_movie_name, start_movie_id=None, target_movie_id=None):
         # Ensure start and target movie IDs are specified
-        if start_movie_id == None:
+        if start_movie_id is None:
             start_movie_id = self.disambiguate_movie(start_movie_name)
-        if target_movie_id == None:
+        if target_movie_id is None:
             target_movie_id = self.disambiguate_movie(target_movie_name)
 
         # Output for improper start/target movie name

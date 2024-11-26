@@ -240,8 +240,8 @@
 
         // retrieves the data used for the two search methods
         function searches(search_method,  startMovie,  targetMovie) {
-            // document.getElementById('result').innerHTML = ''; // clear previous message
-            // document.getElementById('graph').innerHTML = ''; // clear previous graph
+            document.getElementById('result').innerHTML = ''; // clear previous message
+            document.getElementById('graph').innerHTML = ''; // clear previous graph
             let startMovieId = null;
             let targetMovieId = null;
             fetch('/get_movie_list', {
@@ -338,6 +338,8 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.graph_data) {
+                                //let result = 'Time taken to find path: ' + data.run_time.toFixed(4);
+                                document.getElementById('result').innerText = 'Time taken to find path: ' + data.run_time.toFixed(4) + 'seconds';;
                                 const graphData = JSON.parse(data.graph_data);
                                 Plotly.newPlot('graph', graphData.data, graphData.layout);
                             } else {
