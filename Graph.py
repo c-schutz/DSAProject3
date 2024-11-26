@@ -16,6 +16,7 @@ class Graph:
         self.movies_df = None
         self.credits_df = None
         self.graph = nx.Graph()
+        self.options = []
 
 
     def read_data(self, filename="processed_data.pkl"):
@@ -212,7 +213,6 @@ class Graph:
                 color=[],
                 colorbar=dict(
                     thickness=25,
-                    title='Node Budget',
                     xanchor='left',
                     titleside='right',
                 ),
@@ -232,7 +232,13 @@ class Graph:
             x, y = pos[node]
             node_trace['x'] += tuple([x])
             node_trace['y'] += tuple([y])
-            node_trace['marker']['color'] += tuple([budget_value])  # Set color based on rating
+            if len(self.options) > 0:
+                if self.options[0] == "Budget Value":
+                    node_trace['marker']['color'] += tuple([budget_value])  # Set color based on rating
+                else:
+                    node_trace['marker']['color'] += tuple([1])
+            else:
+                node_trace['marker']['color'] += tuple([1])
 
             # If a base movie is provided, include shared actors in the hover text
             if movie_id and node != movie_id and subgraph.has_edge(movie_id, node):
@@ -477,6 +483,8 @@ class Graph:
         fig.update_xaxes(showgrid=False, showticklabels=False)
         fig.update_yaxes(showgrid=False, showticklabels=False)
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    def choose_options(self, new_options):
+        self.options = new_options
 
 import time
 

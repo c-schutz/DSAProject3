@@ -97,6 +97,7 @@ def handle_options():
 
     # Perform any action based on the selected options
     print(f"Selected options: {selected_options}")
+    movie_graph.choose_options(selected_options)
 
     # Return a response
     return jsonify({
