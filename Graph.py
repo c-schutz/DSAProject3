@@ -174,7 +174,6 @@ class Graph:
             # Create a subgraph with the limited number of neighbors
             subgraph = self.graph.subgraph([movie_id] + limited_neighbors)
 
-
         # Layout of the graph
         pos = nx.spring_layout(subgraph, scale=None)
         # Create edges for the plot, using the edge weights
@@ -213,7 +212,7 @@ class Graph:
                 color=[],
                 colorbar=dict(
                     thickness=25,
-                    title='Node Connections',
+                    title='Node Budget',
                     xanchor='left',
                     titleside='right',
                 ),
@@ -223,14 +222,17 @@ class Graph:
 
         # Add nodes to the plot
         for node in subgraph.nodes():
-            # Fetch the movie name (title) from the movies dataframe
+            # Fetch the movie name (title) and budget from the movies dataframe
             movie_name = self.movies_df.loc[self.movies_df['id'] == node, 'original_title'].values
+            movie_budget = self.movies_df.loc[
+                self.movies_df['id'] == node, 'budget'].values  # Assuming 'rating' column exists
             movie_name = movie_name[0] if movie_name.size > 0 else node  # Fallback to node ID if no name found
+            budget_value = float(movie_budget[0]) if movie_budget.size > 0 else 0  # Fallback to 0 if no rating found
 
             x, y = pos[node]
             node_trace['x'] += tuple([x])
             node_trace['y'] += tuple([y])
-            node_trace['marker']['color'] += tuple([len(subgraph.edges(node))])
+            node_trace['marker']['color'] += tuple([budget_value])  # Set color based on rating
 
             # If a base movie is provided, include shared actors in the hover text
             if movie_id and node != movie_id and subgraph.has_edge(movie_id, node):
@@ -242,7 +244,7 @@ class Graph:
                 node_hover_text = ""
 
             node_trace['text'] += tuple([node_text])  # Add hover text for the node
-            node_trace['hovertext']  += tuple([node_hover_text])
+            node_trace['hovertext'] += tuple([node_hover_text])
 
         # Add the traces to the figure
         fig.add_trace(trace_edges)
