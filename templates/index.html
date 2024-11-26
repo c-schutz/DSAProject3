@@ -121,6 +121,7 @@
             <label for="max_connections">Max Connections:</label>
             <input type="number" id="max_connections" name="max_connections" value="15" min="1">
             <button type="submit">Visualize</button>
+            <button type="button" id="second-movie">Add Second Movie</button>
         </form>
     </div>
 
@@ -238,6 +239,41 @@
             });
         });
 
+        // second movie for visualization button click
+        document.getElementById('second-movie').addEventListener('click', function() {
+            const form = document.getElementById('movie-form');
+            const secondMovieContainer = document.getElementById('second-movie-container');
+            const button = this; // for alternating text
+
+        if (secondMovieContainer) {
+            // gets rid of the second movie container and alternates button text
+            secondMovieContainer.remove();
+            button.textContent = 'Add Second Movie';
+        }
+        else {
+            // creates new container below original
+            const container = document.createElement('div');
+            container.id = 'second-movie-container';
+            container.style.marginTop = '10px';
+
+            const label = document.createElement('label');
+            label.setAttribute('for', 'movie_id_2');
+            label.textContent = 'Enter Second Movie Title: ';
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = 'movie_id_2';
+            input.name = 'movie_id_2';
+            input.required = false;
+
+            container.appendChild(label);
+            container.appendChild(input);
+            form.appendChild(container);
+
+            button.textContent = 'Remove Second Movie';
+            }
+        });
+
         // retrieves the data used for the two search methods
         function searches(search_method,  startMovie,  targetMovie) {
             document.getElementById('result').innerHTML = ''; // clear previous message
@@ -339,7 +375,7 @@
                         .then(data => {
                             if (data.graph_data) {
                                 //let result = 'Time taken to find path: ' + data.run_time.toFixed(4);
-                                document.getElementById('result').innerText = 'Time taken to find path: ' + data.run_time.toFixed(4) + 'seconds';;
+                                document.getElementById('result').innerText = 'Time taken to find path: ' + data.run_time.toFixed(4) + ' seconds';
                                 const graphData = JSON.parse(data.graph_data);
                                 Plotly.newPlot('graph', graphData.data, graphData.layout);
                             } else {
@@ -359,8 +395,6 @@
                     document.getElementById('result').innerText = 'An error occurred while fetching the data';
                 });
         }
-
-
 
          // BFS button click
         document.getElementById('bfs-button').addEventListener('click', function(){
