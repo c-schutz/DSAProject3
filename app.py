@@ -27,6 +27,22 @@ def visualize():
 
     return jsonify({'graph_data': graph_data})
 
+@app.route('/visualizeTwoMovies', methods=['POST'])
+def visualizeTwoMovies():
+    movie1_name = request.form.get('movie1')
+    movie2_name = request.form.get('movie2')
+    max_connections = int(request.form.get('max_connections', 15))
+
+    # Visualize the graph for the given movie_name and return JSON data
+    # graph_data = movie_graph.visualize_graph(movie_name, max_connections)
+    #
+    # if isinstance(graph_data, list):  # If it's a list of movies
+    #     return jsonify(graph_data)  # Return the movie list as JSON
+    #
+    # return jsonify({'graph_data': graph_data})
+
+    return jsonify({'movie1_name': movie1_name, 'movie2_name': movie2_name})
+
 
 def get_movie_title_by_id(movie_id):
     movie = movie_graph.movies_df.loc[movie_graph.movies_df['id'] == movie_id, 'original_title']
@@ -62,7 +78,6 @@ def select_movie():
 def get_movie_list():
     start_movie_name = request.form.get('start_movie')
     target_movie_name = request.form.get('target_movie')
-
     start_movie_data = movie_graph.get_movie_list(start_movie_name)
     target_movie_data = movie_graph.get_movie_list(target_movie_name)
     return jsonify({'start_movie_data': start_movie_data, 'target_movie_data': target_movie_data})

@@ -257,21 +257,53 @@
             container.style.marginTop = '10px';
 
             const label = document.createElement('label');
-            label.setAttribute('for', 'movie_id_2');
+            label.setAttribute('for', 'movie2_id');
             label.textContent = 'Enter Second Movie Title: ';
 
             const input = document.createElement('input');
             input.type = 'text';
-            input.id = 'movie_id_2';
-            input.name = 'movie_id_2';
+            input.id = 'movie2_id';
+            input.name = 'movie2_id';
             input.required = false;
+
+            const secondButton = document.createElement('button');
+            secondButton.type = 'button';
+            secondButton.id = 'secondButton';
+            secondButton.textContent = 'Visualize Two Movies';
+            secondButton.required = false;
+            secondButton.style.marginLeft = '4px';
+
+             secondButton.addEventListener('click', function () {
+                 const formData = new FormData(form);
+                 const firstMovieName = document.getElementById('movie_id').value;
+                 const secondMovieName = input.value;
+                 formData.append('movie1', firstMovieName);
+                 formData.append('movie2', secondMovieName);
+                 fetch('/visualizeTwoMovies', {
+                     method: 'POST',
+                     body: formData
+                 })
+                     .then(response => {
+                         if (!response.ok) {
+                             throw new Error('Network response was not ok');
+                         }
+                         return response.json();
+                     })
+                     .then(data => {
+                        document.getElementById('result').innerText = 'First Movie: ' + data.movie1_name + ' Second Movie: ' + data.movie2_name;
+                     })
+                     .catch(error => {
+                         console.error('Error:', error);
+                         document.getElementById('result').innerText = 'An error occurred while fetching the data.';
+                     });
+             });
 
             container.appendChild(label);
             container.appendChild(input);
+            container.appendChild(secondButton)
             form.appendChild(container);
-
             button.textContent = 'Remove Second Movie';
-            }
+        }
         });
 
         // retrieves the data used for the two search methods
