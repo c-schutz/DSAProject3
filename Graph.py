@@ -226,9 +226,11 @@ class Graph:
             movie_name = self.movies_df.loc[self.movies_df['id'] == node, 'original_title'].values
             movie_budget = self.movies_df.loc[self.movies_df['id'] == node, 'budget'].values  # Assuming 'rating' column exists
             movie_date = self.movies_df.loc[self.movies_df['id'] == node, 'release_date'].values[0]
+            movie_revenue = self.movies_df.loc[self.movies_df['id'] == node, 'revenue'].values
             movie_name = movie_name[0] if movie_name.size > 0 else node  # Fallback to node ID if no name found
             budget_value = float(movie_budget[0]) if movie_budget.size > 0 else 0  # Fallback to 0 if no rating found
             year_value = float(movie_date.split('/')[-1]) if len(movie_date) > 0 else 0
+            revenue_value = float(movie_revenue[0]) if movie_revenue.size > 0 else 0
 
             x, y = pos[node]
             node_trace['x'] += tuple([x])
@@ -236,8 +238,10 @@ class Graph:
             if len(self.options) > 0:
                 if self.options[0] == "Budget Value":
                     node_trace['marker']['color'] += tuple([budget_value])  # Set color based on rating
-                elif self.options[0] == "Date Released":
+                elif "Date Released" in self.options:
                     node_trace['marker']['color'] += tuple([year_value])
+                elif "Revenue" in self.options:
+                    node_trace['marker']['color'] += tuple([revenue_value])
                 else:
                     node_trace['marker']['color'] += tuple([1])
             else:
@@ -251,7 +255,22 @@ class Graph:
             else:
                 node_text = f"Movie: {movie_name}"
                 node_hover_text = ""
-
+            if len(self.options) > 0:
+                if "Budget Value" in self.options:
+                    if budget_value > 0:
+                        node_hover_text += f"<br>Budget Value: {int(budget_value)}"  # Set color based on rating
+                    else:
+                        node_hover_text += f"<br>Budget Value: Not Available"
+                if "Date Released" in self.options:
+                    if year_value > 0:
+                        node_hover_text += f"<br>Year Released: {int(year_value)}"
+                    else:
+                        node_hover_text += f"<br> Year Released: Not Available"
+                if "Revenue" in self.options:
+                    if revenue_value > 0:
+                        node_hover_text += f"<br> Revenue: {int(revenue_value)}"
+                    else:
+                        node_hover_text += f"<br> Revenue: Not Available"
             node_trace['text'] += tuple([node_text])  # Add hover text for the node
             node_trace['hovertext'] += tuple([node_hover_text])
 
