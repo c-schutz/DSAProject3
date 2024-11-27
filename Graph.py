@@ -34,6 +34,11 @@ class Graph:
         self.movies_df = pd.read_csv(self.movies_file, low_memory=False)
         self.credits_df = pd.read_csv(self.credits_file, low_memory=False)
 
+        self.movies_df['poster_path'] = self.movies_df['belongs_to_collection'].apply(
+            lambda x: ('' if pd.isna(x) else (ast.literal_eval(x).get('poster_path', '') if isinstance(ast.literal_eval(x), dict) else '')
+            if isinstance(x, str) else '') if isinstance(x, str) else ''
+        )
+
         self.movies_df['id'] = self.movies_df['id'].astype(str)
         self.credits_df['id'] = self.credits_df['id'].astype(str)
 
@@ -281,6 +286,26 @@ class Graph:
         fig.update_xaxes(showgrid=False, showticklabels=False)
         fig.update_yaxes(showgrid=False, showticklabels=False)
 
+        images = []
+        for node, (x, y) in pos.items():
+            image_url = self.movies_df.loc[self.movies_df['id'] == node, 'poster_path'].values
+            image_url = image_url[0] if image_url.size > 0 else None
+            if image_url:
+                images.append(dict(
+                    source=f"https://image.tmdb.org/t/p/original{image_url}",
+                    x=x,
+                    y=y+0.02,
+                    xref="x",
+                    yref="y",
+                    sizex=0.12,
+                    sizey=0.12,
+                    xanchor="center",
+                    yanchor="top",
+                    layer="above"
+                ))
+
+        fig.update_layout(images=images)
+
         # Return the figure as JSON
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
 
@@ -466,6 +491,7 @@ class Graph:
             x=[],
             y=[],
             text=[],
+            hovertext=[],
             textposition='top center',
             mode='markers+text',
             hoverinfo='text',
@@ -484,19 +510,64 @@ class Graph:
             )
         )
 
+        previous_node = None
         # Add nodes to the plot
         for node in subgraph.nodes():
-            # Fetch the movie name (title) from the movies dataframe
+            # Fetch the movie name (title) and budget from the movies dataframe
             movie_name = self.movies_df.loc[self.movies_df['id'] == node, 'original_title'].values
+            movie_budget = self.movies_df.loc[
+            self.movies_df['id'] == node, 'budget'].values  # Assuming 'rating' column exists
+            movie_date = self.movies_df.loc[self.movies_df['id'] == node, 'release_date'].values[0]
+            movie_revenue = self.movies_df.loc[self.movies_df['id'] == node, 'revenue'].values
             movie_name = movie_name[0] if movie_name.size > 0 else node  # Fallback to node ID if no name found
+            budget_value = float(movie_budget[0]) if movie_budget.size > 0 else 0  # Fallback to 0 if no rating found
+            year_value = float(movie_date.split('/')[-1]) if len(movie_date) > 0 else 0
+            revenue_value = float(movie_revenue[0]) if movie_revenue.size > 0 else 0
 
             x, y = pos[node]
             node_trace['x'] += tuple([x])
             node_trace['y'] += tuple([y])
-            node_trace['marker']['color'] += tuple([len(subgraph.edges(node))])
+            if len(self.options) > 0:
+                if self.options[0] == "Budget Value":
+                    node_trace['marker']['color'] += tuple([budget_value])  # Set color based on rating
+                elif "Date Released" in self.options:
+                    node_trace['marker']['color'] += tuple([year_value])
+                elif "Revenue" in self.options:
+                    node_trace['marker']['color'] += tuple([revenue_value])
+                else:
+                    node_trace['marker']['color'] += tuple([1])
+            else:
+                node_trace['marker']['color'] += tuple([1])
 
-            # Add hover text for the node
-            node_trace['text'] += tuple([f"Movie: {movie_name}"])
+            # If a base movie is provided, include shared actors in the hover text
+            if previous_node is not None and subgraph.has_edge(previous_node, node):
+                shared_actors = ', '.join(subgraph[previous_node][node]['actors'])  # Get shared actors
+                node_text = f"Movie: {movie_name}"
+                previous_movie = self.movies_df.loc[self.movies_df['id'] == previous_node, 'original_title'].values
+                previous_movie = previous_movie[0] if previous_movie.size > 0 else previous_node  # Fallback to node ID if no name found
+                node_hover_text = f"Shared Actors with {previous_movie}: {shared_actors}"
+            else:
+                node_text = f"Movie: {movie_name}"
+                node_hover_text = ""
+            if len(self.options) > 0:
+                if "Budget Value" in self.options:
+                    if budget_value > 0:
+                        node_hover_text += f"<br>Budget Value: {int(budget_value)}"  # Set color based on rating
+                    else:
+                        node_hover_text += f"<br>Budget Value: Not Available"
+                if "Date Released" in self.options:
+                    if year_value > 0:
+                        node_hover_text += f"<br>Year Released: {int(year_value)}"
+                    else:
+                        node_hover_text += f"<br> Year Released: Not Available"
+                if "Revenue" in self.options:
+                    if revenue_value > 0:
+                        node_hover_text += f"<br> Revenue: {int(revenue_value)}"
+                    else:
+                        node_hover_text += f"<br> Revenue: Not Available"
+            node_trace['text'] += tuple([node_text])  # Add hover text for the node
+            node_trace['hovertext'] += tuple([node_hover_text])
+            previous_node = node
 
         # Add the traces to the figure
         fig.add_trace(trace_edges)
@@ -504,6 +575,26 @@ class Graph:
         fig.update_layout(showlegend=False)
         fig.update_xaxes(showgrid=False, showticklabels=False)
         fig.update_yaxes(showgrid=False, showticklabels=False)
+
+        images = []
+        for node, (x, y) in pos.items():
+            image_url = self.movies_df.loc[self.movies_df['id'] == node, 'poster_path'].values
+            image_url = image_url[0] if image_url.size > 0 else None
+            if image_url:
+                images.append(dict(
+                    source=f"https://image.tmdb.org/t/p/original{image_url}",
+                    x=x,
+                    y=y,
+                    xref="x",
+                    yref="y",
+                    sizex=0.13,
+                    sizey=0.13,
+                    xanchor="center",
+                    yanchor="middle",
+                    layer="above"
+                ))
+
+        fig.update_layout(images=images)
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     def choose_options(self, new_options):
         self.options = new_options
