@@ -52,65 +52,45 @@
     <h1>
         Movie Graph Visualizer
     </h1>
-    <div class="form-group">
-        <label for="movie_options">Choose one or more options:</label>
-        <div id="movie_options" class="checkbox-group">
-            <label>
-                <input type="checkbox" name="options" value="Date Released">
-                Date Released
-            </label>
-            <label>
-                <input type="checkbox" name="options" value="Budget Value">
-                Budget Value
-            </label>
-            <label>
-                <input type="checkbox" name="options" value="Revenue">
-                Revenue
-            </label>
-            <label>
-                <input type="checkbox" name="options" value="Rating">
-                Rating
-            </label>
-            <div>
-            <label>
-                <input type="checkbox" name="options" value="Production Company">
-                Production Company
-            </label>
-            </div>
-        </div>
+<div class="form-group">
+    <div>
+   <label for="movie_options">Choose one or more options:</label>
     </div>
+   <select id="movie_options" class="form-control" multiple>
+       <option value="Date Released">Date Released</option>
+       <option value="Budget Value">Budget Value</option>
+       <option value="Revenue">Revenue</option>
+       <option value="Rating">Rating</option>
+       <option value="Production Company">Production Company</option>
+   </select>
+</div>
 
     <div id="check"></div>
 
     <script>
-        // Add event listeners to checkboxes
-        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                // Get all selected options
-                const selectedOptions = Array.from(
-                    document.querySelectorAll('input[type="checkbox"]:checked')
-                ).map(input => input.value);
-
-                // Send selected options to the backend
-                fetch('/handle-options', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ selectedOptions }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Display the response from the backend
-                    document.getElementById('result').innerText = data.message;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('result').innerText = 'An error occurred.';
-                });
-            });
+        // Add event listener to the select element
+        document.getElementById('movie_options').addEventListener('change', () => {
+        // Get all selected options
+        const selectedOptions = Array.from( document.getElementById('movie_options').selectedOptions ).map(option => option.value);
+        // Send selected options to the backend
+        fetch('/handle-options', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ selectedOptions }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Display the response from the backend
+            document.getElementById('result').innerText = data.message;
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('result').innerText = 'An error occurred.';
         });
-    </script>
+    });
+</script>
 
         <label for="feature-select">Choose a Feature:</label>
         <select id="feature-select">

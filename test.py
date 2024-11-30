@@ -1,8 +1,7 @@
-import app
-from Graph import Graph
+import pandas as pd
 
 movies_file = "movies_metadata.csv"
 credits_file = "credits.csv"
-movie_graph = Graph(movies_file, credits_file)
-
-print(app.get_movie_title_by_id(277834))
+movies_df = pd.read_csv(movies_file)
+print(movies_df.duplicated().sum())
+print(movies_df.isna().sum())

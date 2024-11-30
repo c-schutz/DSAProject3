@@ -588,26 +588,6 @@ class Graph:
         fig.update_layout(showlegend=False)
         fig.update_xaxes(showgrid=False, showticklabels=False)
         fig.update_yaxes(showgrid=False, showticklabels=False)
-
-        images = []
-        for node, (x, y) in pos.items():
-            image_url = self.movies_df.loc[self.movies_df['id'] == node, 'poster_path'].values
-            image_url = image_url[0] if image_url.size > 0 else None
-            if image_url:
-                images.append(dict(
-                    source=f"https://image.tmdb.org/t/p/original{image_url}",
-                    x=x,
-                    y=y,
-                    xref="x",
-                    yref="y",
-                    sizex=0.13,
-                    sizey=0.13,
-                    xanchor="center",
-                    yanchor="middle",
-                    layer="above"
-                ))
-
-        fig.update_layout(images=images)
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     def choose_options(self, new_options):
         self.options = new_options
