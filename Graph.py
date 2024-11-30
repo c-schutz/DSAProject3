@@ -34,11 +34,6 @@ class Graph:
         self.movies_df = pd.read_csv(self.movies_file, low_memory=False)
         self.credits_df = pd.read_csv(self.credits_file, low_memory=False)
 
-        self.movies_df['poster_path'] = self.movies_df['belongs_to_collection'].apply(
-            lambda x: ('' if pd.isna(x) else (ast.literal_eval(x).get('poster_path', '') if isinstance(ast.literal_eval(x), dict) else '')
-            if isinstance(x, str) else '') if isinstance(x, str) else ''
-        )
-
         self.movies_df['id'] = self.movies_df['id'].astype(str)
         self.credits_df['id'] = self.credits_df['id'].astype(str)
 
