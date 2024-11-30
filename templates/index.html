@@ -53,23 +53,30 @@
         Movie Graph Visualizer
     </h1>
 <div class="form-group">
-    <div>
-   <label for="movie_options">Choose one or more options:</label>
+    <button id="movie-options-button">Choose one or more options(use Ctrl+Left-Click):</button>
+    <div id="movie-options-container" style="display: none;">
+        <select id="movie_options" class="form-control" multiple>
+            <option value="Date Released">Date Released</option>
+            <option value="Budget Value">Budget Value</option>
+            <option value="Revenue">Revenue</option>
+            <option value="Rating">Rating</option>
+            <option value="Production Company">Production Company</option>
+        </select>
     </div>
-   <select id="movie_options" class="form-control" multiple>
-       <option value="Date Released">Date Released</option>
-       <option value="Budget Value">Budget Value</option>
-       <option value="Revenue">Revenue</option>
-       <option value="Rating">Rating</option>
-       <option value="Production Company">Production Company</option>
-   </select>
 </div>
 
-    <div id="check"></div>
+<div id="check"></div>
 
-    <script>
-        // Add event listener to the select element
-        document.getElementById('movie_options').addEventListener('change', () => {
+<script>
+    // Add event listener to the button
+    document.getElementById('movie-options-button').addEventListener('click', () => {
+        // Toggle the display of the select element
+        const movieOptionsContainer = document.getElementById('movie-options-container');
+        movieOptionsContainer.style.display = movieOptionsContainer.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Add event listener to the select element
+    document.getElementById('movie_options').addEventListener('change', () => {
         // Get all selected options
         const selectedOptions = Array.from( document.getElementById('movie_options').selectedOptions ).map(option => option.value);
         // Send selected options to the backend
@@ -91,6 +98,7 @@
         });
     });
 </script>
+
 
         <label for="feature-select">Choose a Feature:</label>
         <select id="feature-select">
