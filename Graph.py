@@ -178,24 +178,23 @@ class Graph:
         # Layout of the graph
         pos = nx.spring_layout(subgraph, scale=None)
         # Create edges for the plot, using the edge weights
-        trace_edges = go.Scatter(
-            x=[],
-            y=[],
-            line=dict(width=0.5, color='#444'),
-            hoverinfo='text',
-            text=[]
-        )
+        edge_traces = []
 
         for edge in subgraph.edges():
             x0, y0 = pos[edge[0]]
             x1, y1 = pos[edge[1]]
-            weight = subgraph[edge[0]][edge[1]]['weight']  # Get the weight (number of shared actors)
-            shared_actors = ', '.join(subgraph[edge[0]][edge[1]]['actors'])  # Get the shared actors
-            trace_edges['x'] += tuple([x0, x1, None])
-            trace_edges['y'] += tuple([y0, y1, None])
+            weight = subgraph[edge[0]][edge[1]]['weight']
+            shared_actors = ', '.join(subgraph[edge[0]][edge[1]]['actors'])
 
-            # Set the hoverinfo to show the weight and shared actors
-            trace_edges['text'] += tuple([f"Shared Actors: {shared_actors}\nWeight (Shared Actors): {weight}"])
+            edge_trace = go.Scatter(
+                x=[x0, x1, None],
+                y=[y0, y1, None],
+                line=dict(color='#444', width=weight),  # Use weight for the line width
+                hoverinfo='text',
+                text=f"Shared Actors: {shared_actors}\nWeight: {weight}"
+            )
+
+            edge_traces.append(edge_trace)
 
         # Create nodes for the plot
         node_trace = go.Scatter(
@@ -307,7 +306,8 @@ class Graph:
             node_trace['hovertext'] += tuple([node_hover_text])
 
         # Add the traces to the figure
-        fig.add_trace(trace_edges)
+        for edge_trace in edge_traces:  # edge_traces is the list of edge Scatter objects
+            fig.add_trace(edge_trace)
         fig.add_trace(node_trace)
         fig.update_layout(showlegend=False)
         fig.update_xaxes(showgrid=False, showticklabels=False)
@@ -475,24 +475,23 @@ class Graph:
         pos = nx.spring_layout(subgraph, scale=None)
 
         # Create edges for the plot, using the edge weights
-        trace_edges = go.Scatter(
-            x=[],
-            y=[],
-            line=dict(width=0.5, color='#444'),
-            hoverinfo='text',
-            text=[]
-        )
+        edge_traces = []
 
         for edge in subgraph.edges():
             x0, y0 = pos[edge[0]]
             x1, y1 = pos[edge[1]]
-            weight = subgraph[edge[0]][edge[1]]['weight']  # Get the weight (number of shared actors)
-            shared_actors = ', '.join(subgraph[edge[0]][edge[1]]['actors'])  # Get the shared actors
-            trace_edges['x'] += tuple([x0, x1, None])
-            trace_edges['y'] += tuple([y0, y1, None])
+            weight = subgraph[edge[0]][edge[1]]['weight']
+            shared_actors = ', '.join(subgraph[edge[0]][edge[1]]['actors'])
 
-            # Set the hoverinfo to show the weight and shared actors
-            trace_edges['text'] += tuple([f"Shared Actors: {shared_actors}\nWeight (Shared Actors): {weight}"])
+            edge_trace = go.Scatter(
+                x=[x0, x1, None],
+                y=[y0, y1, None],
+                line=dict(color='#444', width=weight),  # Use weight for the line width
+                hoverinfo='text',
+                text=f"Shared Actors: {shared_actors}\nWeight: {weight}"
+            )
+
+            edge_traces.append(edge_trace)
 
         # Create nodes for the plot
         node_trace = go.Scatter(
@@ -578,7 +577,8 @@ class Graph:
             previous_node = node
 
         # Add the traces to the figure
-        fig.add_trace(trace_edges)
+        for edge_trace in edge_traces:
+            fig.add_trace(edge_trace)
         fig.add_trace(node_trace)
         fig.update_layout(showlegend=False)
         fig.update_xaxes(showgrid=False, showticklabels=False)
