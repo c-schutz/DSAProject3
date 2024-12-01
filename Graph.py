@@ -189,7 +189,7 @@ class Graph:
             edge_trace = go.Scatter(
                 x=[x0, x1, None],
                 y=[y0, y1, None],
-                line=dict(color='#444', width=weight),  # Use weight for the line width
+                line=dict(color='#444', width=weight * 0.5),  # Use weight for the line width
                 hoverinfo='text',
                 text=f"Shared Actors: {shared_actors}\nWeight: {weight}"
             )
@@ -309,7 +309,11 @@ class Graph:
         for edge_trace in edge_traces:  # edge_traces is the list of edge Scatter objects
             fig.add_trace(edge_trace)
         fig.add_trace(node_trace)
-        fig.update_layout(showlegend=False)
+        fig.update_layout(
+            showlegend=False,
+            plot_bgcolor='white',  # Background of the plot area
+            paper_bgcolor='white'  # Background of the entire figure
+        )
         fig.update_xaxes(showgrid=False, showticklabels=False)
         fig.update_yaxes(showgrid=False, showticklabels=False)
 
@@ -381,7 +385,7 @@ class Graph:
 
                 # Visualize the path from start movie to target movie
                 subgraph = self.graph.subgraph(path)  # Create subgraph with the BFS path
-                return self.visualize_graph_from_subgraph(subgraph)
+                return self.visualize_graph_from_subgraph(subgraph, movie_names[0])
 
             # Mark current node as visited
             if current_node not in visited:
@@ -466,9 +470,9 @@ class Graph:
 
             # Visualize the subgraph if needed
             subgraph = self.graph.subgraph(path)
-            return self.visualize_graph_from_subgraph(subgraph)
+            return self.visualize_graph_from_subgraph(subgraph, movie_names[0])
 
-    def visualize_graph_from_subgraph(self, subgraph):
+    def visualize_graph_from_subgraph(self, subgraph, movie_title):
         fig = make_subplots()
 
         # Layout of the graph
@@ -486,7 +490,7 @@ class Graph:
             edge_trace = go.Scatter(
                 x=[x0, x1, None],
                 y=[y0, y1, None],
-                line=dict(color='#444', width=weight),  # Use weight for the line width
+                line=dict(color='#444', width=weight * 0.5),  # Use weight for the line width
                 hoverinfo='text',
                 text=f"Shared Actors: {shared_actors}\nWeight: {weight}"
             )
@@ -513,23 +517,33 @@ class Graph:
                     xanchor='left',
                     titleside='right',
                 ),
-                line=dict(width=2)
+                line=dict(width=2, color=[])
             )
         )
 
         previous_node = None
+        node_circle_colors = []
         # Add nodes to the plot
         for node in subgraph.nodes():
             # Fetch the movie name (title) and budget from the movies dataframe
             movie_name = self.movies_df.loc[self.movies_df['id'] == node, 'original_title'].values
-            movie_budget = self.movies_df.loc[
-            self.movies_df['id'] == node, 'budget'].values  # Assuming 'rating' column exists
+            movie_budget = self.movies_df.loc[self.movies_df['id'] == node, 'budget'].values  # Assuming 'rating' column exists
             movie_date = self.movies_df.loc[self.movies_df['id'] == node, 'release_date'].values[0]
             movie_revenue = self.movies_df.loc[self.movies_df['id'] == node, 'revenue'].values
+            movie_company = self.movies_df.loc[self.movies_df['id'] == node, 'production_companies'].values
             movie_name = movie_name[0] if movie_name.size > 0 else node  # Fallback to node ID if no name found
             budget_value = float(movie_budget[0]) if movie_budget.size > 0 else 0  # Fallback to 0 if no rating found
             year_value = float(movie_date.split('/')[-1]) if len(movie_date) > 0 else 0
             revenue_value = float(movie_revenue[0]) if movie_revenue.size > 0 else 0
+            movie_companies = self.movies_df.loc[self.movies_df['original_title'] == movie_title, 'production_companies'].values
+
+            target_companies = set()
+            if movie_companies.size > 0 and isinstance(movie_companies[0], str):
+                target_companies = {company['name'] for company in ast.literal_eval(movie_companies[0]) if
+                                    isinstance(company, dict)}
+            company_value = ast.literal_eval(movie_company[0]) if movie_companies.size > 0 and isinstance(
+                movie_companies[0], str) else []
+            company_match = any(company['name'] in target_companies for company in company_value if isinstance(company, dict))
 
             x, y = pos[node]
             node_trace['x'] += tuple([x])
@@ -543,9 +557,16 @@ class Graph:
                     node_trace['marker']['color'] += tuple([revenue_value])
                 else:
                     node_trace['marker']['color'] += tuple([1])
+                if "Production Company" in self.options:
+                    if company_match:
+                        node_circle_colors.append('red')
+                    else:
+                        node_circle_colors.append('black')
+                else:
+                    node_circle_colors.append('black')
             else:
                 node_trace['marker']['color'] += tuple([1])
-
+            node_trace.marker.line.color = node_circle_colors
             # If a base movie is provided, include shared actors in the hover text
             if previous_node is not None and subgraph.has_edge(previous_node, node):
                 shared_actors = ', '.join(subgraph[previous_node][node]['actors'])  # Get shared actors
@@ -572,6 +593,11 @@ class Graph:
                         node_hover_text += f"<br> Revenue: {int(revenue_value)}"
                     else:
                         node_hover_text += f"<br> Revenue: Not Available"
+                if "Production Company" in self.options:
+                    if company_value != "":
+                        node_hover_text += f"<br> Production Company: {company_value}"
+                    else:
+                        node_hover_text += f"<br> Production Company: Not Available"
             node_trace['text'] += tuple([node_text])  # Add hover text for the node
             node_trace['hovertext'] += tuple([node_hover_text])
             previous_node = node
