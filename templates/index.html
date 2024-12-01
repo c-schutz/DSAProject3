@@ -107,17 +107,47 @@
             <option value="dijkstra-form">Dijkstra Search</option>
         </select>
 
-    <div id="visualization-form" class="form-section active">
-        <h2>Graph Visualization</h2>
-        <form id="movie-form" action="/visualize" method="POST">
-            <label for="movie_id">Enter Movie Title:</label>
-            <input type="text" id="movie_id" name="movie_id" required>
-            <label for="max_connections">Max Connections:</label>
-            <input type="number" id="max_connections" name="max_connections" value="15" min="1">
-            <button type="submit">Visualize</button>
-            <button type="button" id="second-movie">Add Second Movie</button>
-        </form>
-    </div>
+<div id="visualization-form" class="form-section active">
+    <h2>Graph Visualization</h2>
+    <form id="movie-form" action="/visualize" method="POST">
+        <label for="movie_id">Enter Movie Title:</label>
+        <input type="text" id="movie_id" name="movie_id" required>
+        <label for="max_connections">Max Connections:</label>
+        <input type="number" id="max_connections" name="max_connections" value="15" min="1">
+        <button type="submit">Visualize</button>
+        <button type="button" id="second-movie">Add Second Movie</button>
+    </form>
+    <div id="movie-suggestions"></div>
+</div>
+
+<script>
+    const movieInput = document.getElementById('movie_id');
+    const suggestionsDiv = document.getElementById('movie-suggestions');
+
+    movieInput.addEventListener('input', function() {
+        const query = movieInput.value;
+
+        if (query.length > 0) {
+            fetch(`/suggestions?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    suggestionsDiv.innerHTML = '';
+                    data.suggestions.forEach(movie => {
+                        const suggestionButton = document.createElement('button');
+                        suggestionButton.textContent = movie;
+                        suggestionButton.classList.add('suggestion-button');
+                        suggestionButton.onclick = function() {
+                            movieInput.value = movie; // Fill in the movie_id input
+                            suggestionsDiv.innerHTML = ''; // Clear suggestions
+                        };
+                        suggestionsDiv.appendChild(suggestionButton);
+                    });
+                });
+        } else {
+            suggestionsDiv.innerHTML = '';
+        }
+    });
+</script>
 
     <div id="bfs-form" class="form-section">
         <h2>Breadth-First Search</h2>

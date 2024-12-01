@@ -26,6 +26,21 @@ def visualize():
         return jsonify(graph_data)  # Return the movie list as JSON
 
     return jsonify({'graph_data': graph_data})
+@app.route('/suggestions', methods=['GET'])
+def suggestions():
+    query = request.args.get('query', '')
+    movie_suggestions = get_movie_suggestions(query)
+    return jsonify({'suggestions': movie_suggestions})
+
+def get_movie_suggestions(movie_title):
+    """
+    This function generates movie suggestions based on user input.
+    It finds movies with titles containing the entered movie title.
+    """
+    filtered_movies = movie_graph.movies_df[movie_graph.movies_df['original_title'].str.contains(movie_title, case=False, na=False)]
+    # Drop duplicates based on 'original_title' and get the top 5 suggestions
+    suggestions = filtered_movies['original_title'].drop_duplicates().tolist()[:5]
+    return suggestions
 
 @app.route('/visualizeTwoMovies', methods=['POST'])
 def visualizeTwoMovies():
