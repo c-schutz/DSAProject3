@@ -606,7 +606,11 @@ class Graph:
         for edge_trace in edge_traces:
             fig.add_trace(edge_trace)
         fig.add_trace(node_trace)
-        fig.update_layout(showlegend=False)
+        fig.update_layout(
+            showlegend=False,
+            plot_bgcolor='white',  # Background of the plot area
+            paper_bgcolor='white'  # Background of the entire figure
+        )
         fig.update_xaxes(showgrid=False, showticklabels=False)
         fig.update_yaxes(showgrid=False, showticklabels=False)
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)

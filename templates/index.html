@@ -149,23 +149,101 @@
     });
 </script>
 
-    <div id="bfs-form" class="form-section">
-        <h2>Breadth-First Search</h2>
-        <label for="start_movie">Start Movie Title:</label>
-        <input type="text" id="start_movie" name="start_movie" required>
-        <label for="target_movie">Target Movie Title:</label>
-        <input type="text" id="target_movie" name="target_movie" required>
-        <button id="bfs-button">Find Kevin Bacon Number</button>
-    </div>
+<div id="bfs-form" class="form-section">
+    <h2>Breadth-First Search</h2>
+    <label for="start_movie">Start Movie Title:</label>
+    <input type="text" id="start_movie" name="start_movie" required>
+    <label for="target_movie">Target Movie Title:</label>
+    <input type="text" id="target_movie" name="target_movie" required>
+    <button id="bfs-button">Find Kevin Bacon Number</button>
+    <div id="bfs-suggestions"></div>
+</div>
 
-    <div id="dijkstra-form" class="form-section">
-        <h2>Dijkstra Search</h2>
-        <label for="startMovie">Start Movie Title:</label>
-        <input type="text" id="startMovie" name="startMovie" required>
-        <label for="targetMovie">Target Movie Title:</label>
-        <input type="text" id="targetMovie" name="targetMovie" required>
-        <button id="dijkstra-button">Find Kevin Bacon Number</button>
-    </div>
+<script>
+    const startMovieInput = document.getElementById('start_movie');
+    const targetMovieInput = document.getElementById('target_movie');
+    const bfsSuggestionsDiv = document.getElementById('bfs-suggestions');
+
+    startMovieInput.addEventListener('input', function() {
+        const query = startMovieInput.value;
+        fetchSuggestions(query, bfsSuggestionsDiv, startMovieInput);
+    });
+
+    targetMovieInput.addEventListener('input', function() {
+        const query = targetMovieInput.value;
+        fetchSuggestions(query, bfsSuggestionsDiv, targetMovieInput);
+    });
+
+    function fetchSuggestions(query, suggestionsDiv, inputField) {
+        if (query.length > 0) {
+            fetch(`/suggestions?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    suggestionsDiv.innerHTML = '';
+                    data.suggestions.forEach(movie => {
+                        const suggestionButton = document.createElement('button');
+                        suggestionButton.textContent = movie;
+                        suggestionButton.classList.add('suggestion-button');
+                        suggestionButton.onclick = function() {
+                            inputField.value = movie; // Fill in the input field
+                            suggestionsDiv.innerHTML = ''; // Clear suggestions
+                        };
+                        suggestionsDiv.appendChild(suggestionButton);
+                    });
+                });
+        } else {
+            suggestionsDiv.innerHTML = '';
+        }
+    }
+</script>
+
+<div id="dijkstra-form" class="form-section">
+    <h2>Dijkstra Search</h2>
+    <label for="startMovie">Start Movie Title:</label>
+    <input type="text" id="startMovie" name="startMovie" required>
+    <label for="targetMovie">Target Movie Title:</label>
+    <input type="text" id="targetMovie" name="targetMovie" required>
+    <button id="dijkstra-button">Find Kevin Bacon Number</button>
+    <div id="dijkstra-suggestions"></div>
+</div>
+
+<script>
+    const startMovieDijkstraInput = document.getElementById('startMovie');
+    const targetMovieDijkstraInput = document.getElementById('targetMovie');
+    const dijkstraSuggestionsDiv = document.getElementById('dijkstra-suggestions');
+
+    startMovieDijkstraInput.addEventListener('input', function () {
+        const query = startMovieDijkstraInput.value;
+        fetchSuggestions(query, dijkstraSuggestionsDiv, startMovieDijkstraInput);
+    });
+
+    targetMovieDijkstraInput.addEventListener('input', function() {
+        const query = targetMovieDijkstraInput.value;
+        fetchSuggestions(query, dijkstraSuggestionsDiv, targetMovieDijkstraInput);
+    });
+
+    function fetchSuggestions(query, suggestionsDiv, inputField) {
+        if (query.length > 0) {
+            fetch(`/suggestions?query=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    suggestionsDiv.innerHTML = '';
+                    data.suggestions.forEach(movie => {
+                        const suggestionButton = document.createElement('button');
+                        suggestionButton.textContent = movie;
+                        suggestionButton.classList.add('suggestion-button');
+                        suggestionButton.onclick = function() {
+                            inputField.value = movie; // Fill in the input field
+                            suggestionsDiv.innerHTML = ''; // Clear suggestions
+                        };
+                        suggestionsDiv.appendChild(suggestionButton);
+                    });
+                });
+        } else {
+            suggestionsDiv.innerHTML = '';
+        }
+    }
+</script>
 
     <div id="result"></div>
     <div id="graph"></div>
