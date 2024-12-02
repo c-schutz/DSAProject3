@@ -184,7 +184,6 @@ class Graph:
             x0, y0 = pos[edge[0]]
             x1, y1 = pos[edge[1]]
             weight = subgraph[edge[0]][edge[1]]['weight']
-            shared_actors = ', '.join(subgraph[edge[0]][edge[1]]['actors'])
 
             edge_trace = go.Scatter(
                 x=[x0, x1, None],
@@ -484,14 +483,13 @@ class Graph:
             x0, y0 = pos[edge[0]]
             x1, y1 = pos[edge[1]]
             weight = subgraph[edge[0]][edge[1]]['weight']
-            shared_actors = ', '.join(subgraph[edge[0]][edge[1]]['actors'])
 
             edge_trace = go.Scatter(
                 x=[x0, x1, None],
                 y=[y0, y1, None],
                 line=dict(color='#444', width=weight * 0.5),  # Use weight for the line width
                 hoverinfo='text',
-                text=f"Shared Actors: {shared_actors}\nWeight: {weight}"
+                text=""
             )
 
             edge_traces.append(edge_trace)
@@ -520,7 +518,6 @@ class Graph:
             )
         )
 
-        previous_node = None  # Initialize previous_node here
         node_circle_colors = []
 
         # Add nodes to the plot
@@ -576,12 +573,14 @@ class Graph:
             node_text = f"Movie: {movie_name}"
             node_hover_text = ""
 
-            # If a base movie is provided, include shared actors in the hover text
-            if previous_node is not None and subgraph.has_edge(previous_node, node):
-                shared_actors = ', '.join(subgraph[previous_node][node]['actors'])  # Get shared actors
-                previous_movie = self.movies_df.loc[self.movies_df['id'] == previous_node, 'original_title'].values
-                previous_movie = previous_movie[0] if previous_movie.size > 0 else previous_node
-                node_hover_text = f"Shared Actors with {previous_movie}: {shared_actors}"
+            # shows shared actors in the hover text for all neighbors
+            neighbors = list(subgraph.neighbors(node))
+            for neighbor in neighbors:
+                if subgraph.has_edge(node, neighbor):
+                    shared_actors = ', '.join(subgraph[node][neighbor]['actors'])
+                    neighbor_name = self.movies_df.loc[self.movies_df['id'] == neighbor, 'original_title'].values
+                    neighbor_name = neighbor_name[0] if neighbor_name.size > 0 else neighbor
+                    node_hover_text += f"<br>Shared Actors with {neighbor_name}: {shared_actors}"
 
             # Add additional information based on options
             if len(self.options) > 0:
@@ -596,7 +595,6 @@ class Graph:
 
             node_trace['text'] += tuple([node_text])  # Add hover text for the node
             node_trace['hovertext'] += tuple([node_hover_text])
-            previous_node = node  # Update previous_node for the next iteration
 
         # Add the traces to the figure
         for edge_trace in edge_traces:
