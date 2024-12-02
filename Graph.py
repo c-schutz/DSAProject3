@@ -298,7 +298,11 @@ class Graph:
                         node_hover_text += f"<br> Rating: Not Available"
                 if "Production Company" in self.options:
                     if company_value != "":
-                        node_hover_text += f"<br> Production Company: {company_value}"
+                        company_names = {company['name'] for company in company_value}
+                        if len(company_names) > 1:
+                            node_hover_text += f"<br> Production Companies: {', '.join(company_names)}"
+                        elif len(company_names) == 1:
+                            node_hover_text += f"<br> Production Company: {', '.join(company_names)}"
                     else:
                         node_hover_text += f"<br> Production Company: Not Available"
             node_trace['text'] += tuple([node_text])  # Add hover text for the node
