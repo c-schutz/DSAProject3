@@ -8,43 +8,88 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #4A90E2;
+            margin-bottom: 20px;
         }
         #graph {
             width: 100%;
             height: 600px;
             border: 1px solid #ccc;
             margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         #result, #bfs-result, #dijkstra-result {
-            color: red;
+            color: #d9534f;
             margin-top: 10px;
-        }
-        h1 {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        body select, button {
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 5px 10px;
-            cursor: pointer;
-        }
-        select:hover, button:hover {
-            opacity: 0.7;
+            text-align: center;
         }
         .form-group {
-            margin-bottom: 20px; /* Add spacing between form sections */
-            text-align: right; /* Align content to the right */
+            margin-bottom: 20px;
+            text-align: center;
         }
         .form-section {
             display: none;
             margin-top: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
         .form-section.active {
             display: block;
+        }
+        select, button, input[type="text"], input[type="number"] {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            width: 80%;
+            max-width: 300px;
+            margin: 10px 0;
+            transition: border-color 0.3s;
+        }
+        select:hover, button:hover, input[type="text"]:hover, input[type="number"]:hover {
+            border-color: #4A90E2;
+        }
+        button {
+            background-color: #4A90E2;
+            color: white;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #357ABD;
+        }
+        .suggestion-button {
+            display: inline-block;
+            margin: 5px;
+            padding: 5px 10px;
+            background-color: #E7E7E7;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .suggestion-button:hover {
+            background-color: #D9D9D9;
+        }
+        #movie-suggestions, #bfs-suggestions, #dijkstra-suggestions {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .form-section h2 {
+            color: #4A90E2;
+            margin-bottom: 10px;
         }
     </style>
 </head>

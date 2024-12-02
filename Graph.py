@@ -191,7 +191,7 @@ class Graph:
                 y=[y0, y1, None],
                 line=dict(color='#444', width=weight * 0.5),  # Use weight for the line width
                 hoverinfo='text',
-                text=f"Shared Actors: {shared_actors}\nWeight: {weight}"
+                text=""
             )
 
             edge_traces.append(edge_trace)
@@ -320,7 +320,6 @@ class Graph:
 
         # Return the figure as JSON
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-
     # Helper function to disambiguate movie titles
     def disambiguate_movie(self, movie_name):
         matching_movies = self.movies_df[self.movies_df['original_title'].str.lower() == movie_name.lower()]
@@ -521,36 +520,43 @@ class Graph:
             )
         )
 
-        previous_node = None
+        previous_node = None  # Initialize previous_node here
         node_circle_colors = []
+
         # Add nodes to the plot
         for node in subgraph.nodes():
             # Fetch the movie name (title) and budget from the movies dataframe
             movie_name = self.movies_df.loc[self.movies_df['id'] == node, 'original_title'].values
-            movie_budget = self.movies_df.loc[self.movies_df['id'] == node, 'budget'].values  # Assuming 'rating' column exists
+            movie_budget = self.movies_df.loc[self.movies_df['id'] == node, 'budget'].values
             movie_date = self.movies_df.loc[self.movies_df['id'] == node, 'release_date'].values[0]
             movie_revenue = self.movies_df.loc[self.movies_df['id'] == node, 'revenue'].values
             movie_company = self.movies_df.loc[self.movies_df['id'] == node, 'production_companies'].values
-            movie_name = movie_name[0] if movie_name.size > 0 else node  # Fallback to node ID if no name found
-            budget_value = float(movie_budget[0]) if movie_budget.size > 0 else 0  # Fallback to 0 if no rating found
+
+            movie_name = movie_name[0] if movie_name.size > 0 else node
+            budget_value = float(movie_budget[0]) if movie_budget.size > 0 else 0
             year_value = float(movie_date.split('/')[-1]) if len(movie_date) > 0 else 0
             revenue_value = float(movie_revenue[0]) if movie_revenue.size > 0 else 0
-            movie_companies = self.movies_df.loc[self.movies_df['original_title'] == movie_title, 'production_companies'].values
+            movie_companies = self.movies_df.loc[
+                self.movies_df['original_title'] == movie_title, 'production_companies'].values
 
             target_companies = set()
             if movie_companies.size > 0 and isinstance(movie_companies[0], str):
                 target_companies = {company['name'] for company in ast.literal_eval(movie_companies[0]) if
                                     isinstance(company, dict)}
-            company_value = ast.literal_eval(movie_company[0]) if movie_companies.size > 0 and isinstance(
-                movie_companies[0], str) else []
-            company_match = any(company['name'] in target_companies for company in company_value if isinstance(company, dict))
+
+            company_value = ast.literal_eval(movie_company[0]) if movie_company.size > 0 and isinstance(
+                movie_company[0], str) else []
+            company_match = any(
+                company['name'] in target_companies for company in company_value if isinstance(company, dict))
 
             x, y = pos[node]
             node_trace['x'] += tuple([x])
             node_trace['y'] += tuple([y])
+
+            # Set colors based on options
             if len(self.options) > 0:
                 if self.options[0] == "Budget Value":
-                    node_trace['marker']['color'] += tuple([budget_value])  # Set color based on rating
+                    node_trace['marker']['color'] += tuple([budget_value])
                 elif "Date Released" in self.options:
                     node_trace['marker']['color'] += tuple([year_value])
                 elif "Revenue" in self.options:
@@ -558,49 +564,39 @@ class Graph:
                 else:
                     node_trace['marker']['color'] += tuple([1])
                 if "Production Company" in self.options:
-                    if company_match:
-                        node_circle_colors.append('red')
-                    else:
-                        node_circle_colors.append('black')
+                    node_circle_colors.append('red' if company_match else 'black')
                 else:
                     node_circle_colors.append('black')
             else:
                 node_trace['marker']['color'] += tuple([1])
+
             node_trace.marker.line.color = node_circle_colors
+
+            # Prepare hover text for the node
+            node_text = f"Movie: {movie_name}"
+            node_hover_text = ""
+
             # If a base movie is provided, include shared actors in the hover text
             if previous_node is not None and subgraph.has_edge(previous_node, node):
                 shared_actors = ', '.join(subgraph[previous_node][node]['actors'])  # Get shared actors
-                node_text = f"Movie: {movie_name}"
                 previous_movie = self.movies_df.loc[self.movies_df['id'] == previous_node, 'original_title'].values
-                previous_movie = previous_movie[0] if previous_movie.size > 0 else previous_node  # Fallback to node ID if no name found
+                previous_movie = previous_movie[0] if previous_movie.size > 0 else previous_node
                 node_hover_text = f"Shared Actors with {previous_movie}: {shared_actors}"
-            else:
-                node_text = f"Movie: {movie_name}"
-                node_hover_text = ""
+
+            # Add additional information based on options
             if len(self.options) > 0:
                 if "Budget Value" in self.options:
-                    if budget_value > 0:
-                        node_hover_text += f"<br>Budget Value: {int(budget_value)}"  # Set color based on rating
-                    else:
-                        node_hover_text += f"<br>Budget Value: Not Available"
+                    node_hover_text += f"<br>Budget Value: {int(budget_value) if budget_value > 0 else 'Not Available'}"
                 if "Date Released" in self.options:
-                    if year_value > 0:
-                        node_hover_text += f"<br>Year Released: {int(year_value)}"
-                    else:
-                        node_hover_text += f"<br> Year Released: Not Available"
+                    node_hover_text += f"<br>Year Released: {int(year_value) if year_value > 0 else 'Not Available'}"
                 if "Revenue" in self.options:
-                    if revenue_value > 0:
-                        node_hover_text += f"<br> Revenue: {int(revenue_value)}"
-                    else:
-                        node_hover_text += f"<br> Revenue: Not Available"
+                    node_hover_text += f"<br>Revenue: {int(revenue_value) if revenue_value > 0 else 'Not Available'}"
                 if "Production Company" in self.options:
-                    if company_value != "":
-                        node_hover_text += f"<br> Production Company: {company_value}"
-                    else:
-                        node_hover_text += f"<br> Production Company: Not Available"
+                    node_hover_text += f"<br>Production Company: {company_value if company_value else 'Not Available'}"
+
             node_trace['text'] += tuple([node_text])  # Add hover text for the node
             node_trace['hovertext'] += tuple([node_hover_text])
-            previous_node = node
+            previous_node = node  # Update previous_node for the next iteration
 
         # Add the traces to the figure
         for edge_trace in edge_traces:
