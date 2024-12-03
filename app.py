@@ -44,20 +44,21 @@ def get_movie_suggestions(movie_title):
 
 @app.route('/visualizeTwoMovies', methods=['POST'])
 def visualizeTwoMovies():
-    movie1_name = request.form.get('movie1')
-    movie2_name = request.form.get('movie2')
-    max_connections = int(request.form.get('max_connections', 15))
+    movie_id = request.form.get('movie_id')
+    movie_id2 = request.form.get('movie_id2')
+    max_connections = int(request.form.get('max_connections'))
+
+    # assigns and returns the actual title not the user-typed one
+    movie_name = movie_graph.movies_df.loc[movie_graph.movies_df['id'] == movie_id, 'original_title'].iloc[0]
+    movie_name2 = movie_graph.movies_df.loc[movie_graph.movies_df['id'] == movie_id2, 'original_title'].iloc[0]
 
     # Visualize the graph for the given movie_name and return JSON data
-    # graph_data = movie_graph.visualize_graph(movie_name, max_connections)
-    #
+    graph_data = movie_graph.visualize_graph_by_id(movie_id, movie_name, max_connections, movie_id2, movie_name2)
+
     # if isinstance(graph_data, list):  # If it's a list of movies
     #     return jsonify(graph_data)  # Return the movie list as JSON
-    #
-    # return jsonify({'graph_data': graph_data})
 
-    return jsonify({'movie1_name': movie1_name, 'movie2_name': movie2_name})
-
+    return jsonify({'graph_data': graph_data})
 
 def get_movie_title_by_id(movie_id):
     movie = movie_graph.movies_df.loc[movie_graph.movies_df['id'] == movie_id, 'original_title']

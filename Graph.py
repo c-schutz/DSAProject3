@@ -153,18 +153,19 @@ class Graph:
         # returns original title from dataset so there's no capitalization errors
         return self.visualize_graph_by_id(movie_id, matching_movies.iloc[0]['original_title'], max_connections)
 
-    def visualize_graph_by_id(self, movie_id=None, movie_title=None, max_connections=15):
+    def visualize_graph_by_id(self, movie_id=None, movie_title=None, max_connections=15, movie_id2=None, movie_title2=None):
         fig = make_subplots()
-
         if movie_id is not None:
             movie_id = str(movie_id)
+        if movie_id2 is not None:
+            movie_id2 = str(movie_id2)
 
-        # Use the entire graph if no movie_id is provided, otherwise create a subgraph for the movie and its neighbors
-        subgraph = self.graph if movie_id is None else self.graph.subgraph(
-            [movie_id] + list(self.graph.neighbors(movie_id)))
+        # if only visualizing one movie
+        if movie_id is not None and movie_id2 is None:
+            # create a subgraph for the movie and its neighbors
+            subgraph = self.graph.subgraph([movie_id] + list(self.graph.neighbors(movie_id)))
 
-        # Limit the number of connections per node
-        if movie_id is not None:
+            # Limit the number of connections per node
             # Get the neighbors and sort by the number of connections (edges)
             neighbors = list(self.graph.neighbors(movie_id))
             neighbors_sorted = sorted(neighbors, key=lambda x: len(list(self.graph.neighbors(x))), reverse=True)
@@ -174,6 +175,26 @@ class Graph:
 
             # Create a subgraph with the limited number of neighbors
             subgraph = self.graph.subgraph([movie_id] + limited_neighbors)
+
+        # if visualizing two movies
+        elif movie_id is not None and movie_id2 is not None:
+            neighbors1 = set(self.graph.neighbors(movie_id))
+            neighbors2 = set(self.graph.neighbors(movie_id2))
+            shared_neighbors = neighbors1 & neighbors2
+
+            if not shared_neighbors:
+                return json.dumps({'error': f"No shared actors found between movies '{movie_title}' and '{movie_title2}'."})
+
+            # Limit the number of shared neighbors
+            shared_neighbors_sorted = sorted(shared_neighbors, key=lambda x: len(list(self.graph.neighbors(x))), reverse=True)
+            limited_shared_neighbors = shared_neighbors_sorted[:max_connections]
+
+            # Create a subgraph with the two movies and their shared neighbors
+            subgraph = self.graph.subgraph([movie_id, movie_id2] + limited_shared_neighbors)
+
+        # Return an error if no movie id provided
+        else:
+            return json.dumps({'error': f"Movie '{movie_title}' not found."})
 
         # Layout of the graph
         pos = nx.spring_layout(subgraph, scale=None)
@@ -268,10 +289,27 @@ class Graph:
                 node_trace['marker']['color'] += tuple([1])
             node_trace.marker.line.color = node_circle_colors
             # If a base movie is provided, include shared actors in the hover text
-            if movie_id and node != movie_id and subgraph.has_edge(movie_id, node):
+            if movie_id and node != movie_id and subgraph.has_edge(movie_id, node) and not movie_id2:
                 shared_actors = ', '.join(subgraph[movie_id][node]['actors'])  # Get shared actors
                 node_text = f"Movie: {movie_name}"
                 node_hover_text = f"Shared Actors with {movie_title}: {shared_actors}"
+            # if two movies given, prints the actors shared with both
+            elif movie_id and node != movie_id and subgraph.has_edge(movie_id, node) and movie_id2 and node != movie_id2 and subgraph.has_edge(movie_id2, node):
+                # Actors shared with both movies
+                shared_actors_1 = subgraph[movie_id][node]['actors']
+                shared_actors_2 = subgraph[movie_id2][node]['actors']
+                node_text = f"Movie: {movie_name}"
+                # Store the shared actors for hover text
+                node_hover_text = f"Shared Actors with {movie_title}: {', '.join(shared_actors_1)}"
+                node_hover_text += f"<br>Shared Actors with {movie_title2}: {', '.join(shared_actors_2)}"
+            # if two movies are given and they connect with each other
+            elif movie_id and movie_id2 and subgraph.has_edge(movie_id, movie_id2):
+                shared_actors = ', '.join(subgraph[movie_id][movie_id2]['actors'])  # Get shared actors
+                node_text = f"Movie: {movie_name}"
+                if node == movie_id:
+                    node_hover_text = f"Shared Actors with {movie_title2}: {shared_actors}"
+                elif node == movie_id2:
+                    node_hover_text = f"Shared Actors with {movie_title}: {shared_actors}"
             else:
                 node_text = f"Movie: {movie_name}"
                 node_hover_text = ""
