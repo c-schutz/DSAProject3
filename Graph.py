@@ -183,27 +183,31 @@ class Graph:
             neighbors2 = set(self.graph.neighbors(movie_id2))
 
             # Perform BFS to find all nodes within max_hops
-            def bfs(start_node, max_hops, max_connections):
+            def bfs(start_node, max_hops):
                 visited = set()
                 queue = [(start_node, 0)]  # (node, current_hop)
                 reachable_nodes = set()
+                reachable_from_max = set()
 
-                while queue and len(reachable_nodes) < max_connections:
+                while queue and len(reachable_from_max) < max_connections:
                     current_node, current_hop = queue.pop(0)
                     if current_hop < max_hops and current_node not in visited:
                         visited.add(current_node)
                         reachable_nodes.add(current_node)
+                        if current_hop + 1 == max_hops:
+                            reachable_from_max.add(current_node)
                         for neighbor in self.graph.neighbors(current_node):
                             if neighbor not in visited:
                                 queue.append((neighbor, current_hop + 1))
                 return reachable_nodes
 
-            reachable_from_movie1 = bfs(movie_id, max_hops, max_connections)
-            reachable_from_movie2 = bfs(movie_id2, max_hops, max_connections)
+            reachable_from_movie1 = bfs(movie_id, max_hops)
+            reachable_from_movie2 = bfs(movie_id2, max_hops)
 
             # Combine reachable nodes and find shared neighbors
             combined_reachable = reachable_from_movie1 | reachable_from_movie2
             shared_neighbors = neighbors1 & neighbors2
+            print(len(combined_reachable))
 
             # Limit the number of shared neighbors
             if shared_neighbors:
@@ -327,6 +331,7 @@ class Graph:
                 node_text = f"Movie: {movie_name}"
                 # node_hover_text = f"Shared Actors with {movie_title}: {shared_actors_1_text}"
                 # node_hover_text += f"<br>Shared Actors with {movie_title2}: {shared_actors_2_text}"
+                node_hover_text =  ""
 
             # if two movies are given and they connect with each other
             elif movie_id and movie_id2 and subgraph.has_edge(movie_id, movie_id2):
