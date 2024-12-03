@@ -607,7 +607,7 @@ class Graph:
 
             movie_name = movie_name[0] if movie_name.size > 0 else node
             budget_value = float(movie_budget[0]) if movie_budget.size > 0 else 0
-            year_value = float(movie_date[:4]) if len(movie_date) > 0 else 0
+            year_value = float(movie_date[-4:]) if len(movie_date) > 0 else 0
             revenue_value = float(movie_revenue[0]) if movie_revenue.size > 0 else 0
             movie_companies = self.movies_df.loc[
                 self.movies_df['original_title'] == movie_title, 'production_companies'].values
