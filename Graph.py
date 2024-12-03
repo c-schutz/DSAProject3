@@ -189,13 +189,11 @@ class Graph:
                 reachable_nodes = set()
                 reachable_from_max = set()
 
-                while queue and len(reachable_from_max) < max_connections:
+                while queue and len(reachable_nodes) < max_connections:
                     current_node, current_hop = queue.pop(0)
                     if current_hop < max_hops and current_node not in visited:
                         visited.add(current_node)
                         reachable_nodes.add(current_node)
-                        if current_hop + 1 == max_hops:
-                            reachable_from_max.add(current_node)
                         for neighbor in self.graph.neighbors(current_node):
                             if neighbor not in visited:
                                 queue.append((neighbor, current_hop + 1))
@@ -219,7 +217,7 @@ class Graph:
                     {'error': f"No shared actors found between movies '{movie_title}' and '{movie_title2}'."})
 
             # Create a subgraph with the two movies and their reachable neighbors
-            subgraph = self.graph.subgraph([movie_id, movie_id2] + list(combined_reachable) + limited_shared_neighbors)
+            subgraph = self.graph.subgraph([movie_id, movie_id2] + list(combined_reachable) + list(shared_neighbors))
 
             # Existing logic to extract shared actors and build the plot...
 
