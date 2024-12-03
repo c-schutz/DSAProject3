@@ -316,7 +316,7 @@ class Graph:
             if len(self.options) > 0:
                 if "Budget Value" in self.options:
                     if budget_value > 0:
-                        node_hover_text += f"<br> Budget Value: {int(budget_value)}"  # Set color based on rating
+                        node_hover_text += f"<br> Budget Value: ${int(budget_value):,}"  # Set color based on rating
                     else:
                         node_hover_text += f"<br>Budget Value: Not Available"
                 if "Date Released" in self.options:
@@ -326,7 +326,7 @@ class Graph:
                         node_hover_text += f"<br> Year Released: Not Available"
                 if "Revenue" in self.options:
                     if revenue_value > 0:
-                        node_hover_text += f"<br> Revenue: {int(revenue_value)}"
+                        node_hover_text += f"<br> Revenue: ${int(revenue_value):,}"
                     else:
                         node_hover_text += f"<br> Revenue: Not Available"
                 if "Rating" in self.options:
@@ -628,11 +628,11 @@ class Graph:
             # Add additional information based on options
             if len(self.options) > 0:
                 if "Budget Value" in self.options:
-                    node_hover_text += f"<br>Budget Value: {int(budget_value) if budget_value > 0 else 'Not Available'}"
+                    node_hover_text += f"<br>Budget Value: ${int(budget_value):,}" if budget_value > 0 else f"<br>Budget Value: Not Available"
                 if "Date Released" in self.options:
                     node_hover_text += f"<br>Year Released: {int(year_value) if year_value > 0 else 'Not Available'}"
                 if "Revenue" in self.options:
-                    node_hover_text += f"<br>Revenue: {int(revenue_value) if revenue_value > 0 else 'Not Available'}"
+                    node_hover_text += f"<br>Revenue Value: ${int(revenue_value):,}" if budget_value > 0 else f"<br>Revenue Value: Not Available"
                 if "Production Company" in self.options:
                     company_names = {company['name'] for company in company_value}
                     if len(company_names) > 1:
