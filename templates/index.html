@@ -386,172 +386,172 @@
             });
         });
 
-        // second movie for visualization button click
-        document.getElementById('second-movie').addEventListener('click', function() {
-            const form = document.getElementById('movie-form');
-            const secondMovieContainer = document.getElementById('second-movie-container');
-            const button = this; // for alternating text
+ // second movie for visualization button click
+document.getElementById('second-movie').addEventListener('click', function() {
+    const form = document.getElementById('movie-form');
+    const secondMovieContainer = document.getElementById('second-movie-container');
+    const button = this; // for alternating text
 
-        if (secondMovieContainer) {
-            // gets rid of the second movie container and alternates button text
-            secondMovieContainer.remove();
-            button.textContent = 'Add Second Movie';
-        }
-        else {
-            // creates new container below original
-            const container = document.createElement('div');
-            container.id = 'second-movie-container';
-            container.style.marginTop = '10px';
+    if (secondMovieContainer) {
+        // gets rid of the second movie container and alternates button text
+        secondMovieContainer.remove();
+        button.textContent = 'Add Second Movie';
+    } else {
+        // creates new container below original
+        const container = document.createElement('div');
+        container.id = 'second-movie-container';
+        container.style.marginTop = '10px';
 
-            const label = document.createElement('label');
-            label.setAttribute('for', 'movie2_id');
-            label.textContent = 'Enter Second Movie Title: ';
+        const label = document.createElement('label');
+        label.setAttribute('for', 'movie2_id');
+        label.textContent = 'Enter Second Movie Title: ';
 
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.id = 'movie2_id';
-            input.name = 'movie2_id';
-            input.required = false;
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = 'movie2_id';
+        input.name = 'movie2_id';
+        input.required = false;
 
-            const secondButton = document.createElement('button');
-            secondButton.type = 'button';
-            secondButton.id = 'secondButton';
-            secondButton.textContent = 'Visualize Two Movies';
-            secondButton.required = false;
-            secondButton.style.marginLeft = '4px';
+        // Create a label for Max Distance
+        const maxDistanceLabel = document.createElement('label');
+        maxDistanceLabel.setAttribute('for', 'max_distance');
+        maxDistanceLabel.textContent = ' Max Distance: ';
 
-             secondButton.addEventListener('click', async function () {
-                 document.getElementById('result').innerHTML = ''; // clear previous message
-                 document.getElementById('graph').innerHTML = ''; // clear previous graph
-                 const firstMovieName = document.getElementById('movie_id').value;
-                 const secondMovieName = input.value;
-                 let firstMovieId = null;
-                 let secondMovieId = null;
+        // Create an input for Max Distance
+        const maxDistanceInput = document.createElement('input');
+        maxDistanceInput.type = 'number';
+        maxDistanceInput.id = 'max_distance';
+        maxDistanceInput.name = 'max_distance';
+        maxDistanceInput.value = '1'; // Default value
+        maxDistanceInput.min = '1'; // Minimum value
 
-                const firstMovieData = await fetch('/get_movie_list', {
-                    method: 'POST',
-                    body: new URLSearchParams({
-                        start_movie: firstMovieName
-                    })
-             }).then(response => response.json());
+        const secondButton = document.createElement('button');
+        secondButton.type = 'button';
+        secondButton.id = 'secondButton';
+        secondButton.textContent = 'Visualize Two Movies';
+        secondButton.required = false;
+        secondButton.style.marginLeft = '4px';
 
-                         // if multiple movies found prints out a list of options
-                         if (Array.isArray(firstMovieData.start_movie_data)) {
-                             // Handle the case where multiple movies are found
-                             let movieListHTML = '<h2>Select a Movie</h2><form id="start-selection-form"><ul>';
-                             firstMovieData.start_movie_data.forEach(movie => {
-                                 // Check for Release Date
-                                 let releaseDate = 'Unknown Year';
-                                 if (movie.release_date)
-                                     releaseDate = movie.release_date;
-                                 // Check for Top Cast
-                                 let movieCast = 'Unknown Cast';
-                                 if (movie.cast && movie.cast !== 'Unknown Cast') {
-                                     movieCast = movie.cast;
-                                 }
-                                 movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
+        secondButton.addEventListener('click', async function () {
+            document.getElementById('result').innerHTML = ''; // clear previous message
+            document.getElementById('graph').innerHTML = ''; // clear previous graph
+            const firstMovieName = document.getElementById('movie_id').value;
+            const secondMovieName = input.value;
+            const maxConnections = document.getElementById('max_connections').value; // Get the max connections value
+            const maxDistance = maxDistanceInput.value; // Get the max distance value
+            let firstMovieId = null;
+            let secondMovieId = null;
+
+            // Fetch the first movie data
+            const firstMovieData = await fetch('/get_movie_list', {
+                method: 'POST',
+                body: new URLSearchParams({
+                    start_movie: firstMovieName
+                })
+            }).then(response => response.json());
+
+            // Handle the case where multiple movies are found for the first movie
+            if (Array.isArray(firstMovieData.start_movie_data)) {
+                let movieListHTML = '<h2>Select a Movie</h2><form id="start-selection-form"><ul>';
+                firstMovieData.start_movie_data.forEach(movie => {
+                    let releaseDate = movie.release_date || 'Unknown Year';
+                    let movieCast = movie.cast && movie.cast !== 'Unknown Cast' ? movie.cast : 'Unknown Cast';
+                    movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
                         <label for="movie_${movie.id}">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
                         </li>`;
-                             });
-                             movieListHTML += '</ul><button type="submit">Visualize</button></form>';
+                });
+                movieListHTML += '</ul><button type="submit">Visualize</button></form>';
+                document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
+                document.getElementById('graph').innerHTML = ''; // Clear previous graph
 
-                             document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
-                             document.getElementById('graph').innerHTML = ''; // Clear previous graph
+                // Add event listener for the movie selection form
+                firstMovieId = await new Promise(resolve => {
+                    const form = document.getElementById('start-selection-form');
+                    form.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        resolve(this.movie_id.value);
+                    });
+ });
+            } else {
+                firstMovieId = firstMovieData.start_movie_data;
+            }
 
-                             // Add event listener for the movie selection form
-                             firstMovieId = await new Promise(resolve => {
-                                 const form = document.getElementById('start-selection-form');
-                                 form.addEventListener('submit', function (e) {
-                                     e.preventDefault(); // prevents form submission
-                                     resolve(this.movie_id.value); // resolves the promise with the selected movie ID
-                                 });
-                             });
-                         } else
-                             firstMovieId = firstMovieData.start_movie_data;
+            // Fetch the second movie data
+            const secondMovieData = await fetch('/get_movie_list', {
+                method: 'POST',
+                body: new URLSearchParams({
+                    start_movie: secondMovieName
+                })
+            }).then(response => response.json());
 
-                 const secondMovieData = await fetch('/get_movie_list', {
-                    method: 'POST',
-                    body: new URLSearchParams({
-                        start_movie: secondMovieName
-                    })
-                }).then(response => response.json());
-                         // same process but with target movie
-                         if (Array.isArray(secondMovieData.start_movie_data)) {
-                             // Handle the case where multiple movies are found
-                             let movieListHTML = '<h2>Select a Movie</h2><form id="target-selection-form"><ul>';
-                             secondMovieData.start_movie_data.forEach(movie => {
-                                 // Check for Release Date
-                                 let releaseDate = 'Unknown Year';
-                                 if (movie.release_date) {
-                                     releaseDate = movie.release_date;
-                                 }
-                                 // Check for Top Cast
-                                 let movieCast = 'Unknown Cast';
-                                 if (movie.cast && movie.cast !== 'Unknown Cast') {
-                                     movieCast = movie.cast;
-                                 }
-
-                                 movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
+            // Handle the case where multiple movies are found for the second movie
+            if (Array.isArray(secondMovieData.start_movie_data)) {
+                let movieListHTML = '<h2>Select a Movie</h2><form id="target-selection-form"><ul>';
+                secondMovieData.start_movie_data.forEach(movie => {
+                    let releaseDate = movie.release_date || 'Unknown Year';
+                    let movieCast = movie.cast && movie.cast !== 'Unknown Cast' ? movie.cast : 'Unknown Cast';
+                    movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
                         <label for="movie_${movie.id}">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
                         </li>`;
-                             });
-                             movieListHTML += '</ul><button type="submit">Visualize</button></form>';
+                });
+                movieListHTML += '</ul><button type="submit">Visualize</button></form>';
+                document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
+                document.getElementById('graph').innerHTML = ''; // Clear previous graph
 
+                // Add event listener for the movie selection form
+                secondMovieId = await new Promise(resolve => {
+                    const form = document.getElementById('target-selection-form');
+                    form.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        resolve(this.movie_id.value);
+                    });
+                });
+            } else {
+                secondMovieId = secondMovieData.start_movie_data;
+            }
 
-                             document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
-                             document.getElementById('graph').innerHTML = ''; // Clear previous graph
-
-                             // Add event listener for the movie selection form
-                             secondMovieId = await new Promise(resolve => {
-                                 const form = document.getElementById('target-selection-form');
-                                 form.addEventListener('submit', function (e) {
-                                     e.preventDefault(); // prevents form submission
-                                     resolve(this.movie_id.value); // resolves the promise with the selected movie ID
-                                 });
-                             });
-                         } else
-                             secondMovieId = secondMovieData.start_movie_data;
-
-                 const maxConnections = document.getElementById('max_connections').value;
-                 fetch('/visualizeTwoMovies', {
-                     method: 'POST',
-                    body: new URLSearchParams({
-                        movie_name: firstMovieName,
-                        movie_name2: secondMovieName,
-                        movie_id: firstMovieId,
-                        movie_id2: secondMovieId,
-                        max_connections: maxConnections
-                    })
-                 })
-                     .then(response => {
-                         if (!response.ok) {
-                             throw new Error('Network response was not ok');
-                         }
-                         return response.json();
-                     })
-                     .then(data => {
-                         if (data.graph_data) {
-                             // If a single movie was found, plot it immediately
-                             const graphData = JSON.parse(data.graph_data);
-                             Plotly.newPlot('graph', graphData.data, graphData.layout);
-                             document.getElementById('result').innerText = ''; // Clear previous errors
-                         } else {
-                             document.getElementById('result').innerText = data.error || 'An error occurred.';
-                         }
-                     })
-                     .catch(error => {
-                         console.error('Error:', error);
-                         document.getElementById('result').innerText = 'An error occurred while fetching the data.';
-                     });
-             });
-
-            container.appendChild(label);
-            container.appendChild(input);
-            container.appendChild(secondButton)
-            form.appendChild(container);
-            button.textContent = 'Remove Second Movie';
-        }
+            // Fetch the graph data for the two selected movies
+            fetch('/visualizeTwoMovies', {
+                method: 'POST',
+                body: new URLSearchParams({
+                    movie_name: firstMovieName,
+                    movie_name2: secondMovieName,
+                    movie_id: firstMovieId,
+                    movie_id2: secondMovieId,
+                    max_connections: maxConnections, // Include max connections in the request
+                    max_distance: maxDistance // Include max distance in the request
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.graph_data) {
+                    const graphData = JSON.parse(data.graph_data);
+                    Plotly.newPlot('graph', graphData.data, graphData.layout);
+                    document.getElementById('result').innerText = ''; // Clear previous errors
+                } else {
+                    document.getElementById('result').innerText = data.error || 'An error occurred.';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('result').innerText = 'An error occurred while fetching the data.';
+            });
         });
+
+        container.appendChild(label);
+        container.appendChild(input);
+        container.appendChild(maxDistanceLabel); // Append Max Distance label
+        container.appendChild(maxDistanceInput); // Append Max Distance input
+        container.appendChild(secondButton);
+        form.appendChild(container);
+        button.textContent = 'Remove Second Movie';
+    }
+});
 
         // retrieves the data used for the two search methods
         function searches(search_method,  startMovie,  targetMovie) {

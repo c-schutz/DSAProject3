@@ -47,13 +47,14 @@ def visualizeTwoMovies():
     movie_id = request.form.get('movie_id')
     movie_id2 = request.form.get('movie_id2')
     max_connections = int(request.form.get('max_connections'))
+    max_distance = int(request.form.get('max_distance'))
 
     # assigns and returns the actual title not the user-typed one
     movie_name = movie_graph.movies_df.loc[movie_graph.movies_df['id'] == movie_id, 'original_title'].iloc[0]
     movie_name2 = movie_graph.movies_df.loc[movie_graph.movies_df['id'] == movie_id2, 'original_title'].iloc[0]
 
     # Visualize the graph for the given movie_name and return JSON data
-    graph_data = movie_graph.visualize_graph_by_id(movie_id, movie_name, max_connections, movie_id2, movie_name2)
+    graph_data = movie_graph.visualize_graph_by_id(movie_id, movie_name, max_connections, movie_id2, movie_name2, max_distance)
 
     # if isinstance(graph_data, list):  # If it's a list of movies
     #     return jsonify(graph_data)  # Return the movie list as JSON

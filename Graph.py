@@ -321,6 +321,7 @@ class Graph:
                 node_hover_text = f"Shared Actors with {movie_title}: {shared_actors}"
             # if two movies given, prints the actors shared with both
             elif movie_id and node != movie_id and subgraph.has_edge(movie_id, node) and movie_id2 and node != movie_id2 and subgraph.has_edge(movie_id2, node):
+                #TODO: Fix Shared Actors For Two Movies
                 # shared_actors_1_text = ', '.join(shared_actors_1.get(node, []))
                 # shared_actors_2_text = ', '.join(shared_actors_2.get(node, []))
                 node_text = f"Movie: {movie_name}"
