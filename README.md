@@ -30,10 +30,10 @@ The Movie Graph project allows users to explore relationships between movies bas
 2. **Install Required Libraries**:
     ```bash
    pip install pandas networkx plotly
-3. **Prepare the Data Files**:
+3. **Prepare the Data Files**:<br />
     Make sure that both `movies_metadata.csv` and `credits.csv` are in the repo
 ## Usage
-1. **Run the script**:
+1. **Run the script**:<br />
     Execute `app.py` to start the application
     ```bash
    python app.py
