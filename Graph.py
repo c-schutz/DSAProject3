@@ -281,7 +281,7 @@ class Graph:
             movie_company = self.movies_df.loc[self.movies_df['id'] == node, 'production_companies'].values
             movie_name = movie_name[0] if movie_name.size > 0 else node  # Fallback to node ID if no name found
             budget_value = float(movie_budget[0]) if movie_budget.size > 0 else 0  # Fallback to 0 if no rating found
-            year_value = float(movie_date.split('/')[-1]) if len(movie_date) > 0 else 0
+            year_value = float(movie_date[:4]) if len(movie_date) > 0 else 0
             revenue_value = float(movie_revenue[0]) if movie_revenue.size > 0 else 0
             rating_value = float(movie_rating[0]) if movie_rating.size > 0 else -1
             movie_companies = self.movies_df.loc[self.movies_df['original_title'] == movie_title, 'production_companies'].values
@@ -607,7 +607,7 @@ class Graph:
 
             movie_name = movie_name[0] if movie_name.size > 0 else node
             budget_value = float(movie_budget[0]) if movie_budget.size > 0 else 0
-            year_value = float(movie_date.split('/')[-1]) if len(movie_date) > 0 else 0
+            year_value = float(movie_date[:4]) if len(movie_date) > 0 else 0
             revenue_value = float(movie_revenue[0]) if movie_revenue.size > 0 else 0
             movie_companies = self.movies_df.loc[
                 self.movies_df['original_title'] == movie_title, 'production_companies'].values
