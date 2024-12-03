@@ -192,6 +192,17 @@ class Graph:
             # Create a subgraph with the two movies and their shared neighbors
             subgraph = self.graph.subgraph([movie_id, movie_id2] + limited_shared_neighbors)
 
+            shared_actors_1 = {}
+            shared_actors_2 = {}
+
+            # Loop through the shared neighbors and get the actors for both movies
+            for node in subgraph.nodes():
+                if node != movie_id and node != movie_id2:
+                    # Get the shared actors for the first movie (movie_id)
+                    shared_actors_1[node] = set(subgraph[movie_id][node].get('actors', []))
+                    # Get the shared actors for the second movie (movie_id2)
+                    shared_actors_2[node] = set(subgraph[movie_id2][node].get('actors', []))
+
         # Return an error if no movie id provided
         else:
             return json.dumps({'error': f"Movie '{movie_title}' not found."})
@@ -295,13 +306,12 @@ class Graph:
                 node_hover_text = f"Shared Actors with {movie_title}: {shared_actors}"
             # if two movies given, prints the actors shared with both
             elif movie_id and node != movie_id and subgraph.has_edge(movie_id, node) and movie_id2 and node != movie_id2 and subgraph.has_edge(movie_id2, node):
-                # Actors shared with both movies
-                shared_actors_1 = subgraph[movie_id][node]['actors']
-                shared_actors_2 = subgraph[movie_id2][node]['actors']
+                shared_actors_1_text = ', '.join(shared_actors_1.get(node, []))
+                shared_actors_2_text = ', '.join(shared_actors_2.get(node, []))
                 node_text = f"Movie: {movie_name}"
-                # Store the shared actors for hover text
-                node_hover_text = f"Shared Actors with {movie_title}: {', '.join(shared_actors_1)}"
-                node_hover_text += f"<br>Shared Actors with {movie_title2}: {', '.join(shared_actors_2)}"
+                node_hover_text = f"Shared Actors with {movie_title}: {shared_actors_1_text}"
+                node_hover_text += f"<br>Shared Actors with {movie_title2}: {shared_actors_2_text}"
+
             # if two movies are given and they connect with each other
             elif movie_id and movie_id2 and subgraph.has_edge(movie_id, movie_id2):
                 shared_actors = ', '.join(subgraph[movie_id][movie_id2]['actors'])  # Get shared actors
@@ -310,6 +320,9 @@ class Graph:
                     node_hover_text = f"Shared Actors with {movie_title2}: {shared_actors}"
                 elif node == movie_id2:
                     node_hover_text = f"Shared Actors with {movie_title}: {shared_actors}"
+                else:
+                    node_text = f"Movie: {movie_name}"
+                    node_hover_text = ""
             else:
                 node_text = f"Movie: {movie_name}"
                 node_hover_text = ""
