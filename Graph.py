@@ -153,7 +153,8 @@ class Graph:
         # returns original title from dataset so there's no capitalization errors
         return self.visualize_graph_by_id(movie_id, matching_movies.iloc[0]['original_title'], max_connections)
 
-    def visualize_graph_by_id(self, movie_id=None, movie_title=None, max_connections=15, movie_id2=None, movie_title2=None):
+    def visualize_graph_by_id(self, movie_id=None, movie_title=None, max_connections=15, movie_id2=None,
+                              movie_title2=None, max_hops=2):
         fig = make_subplots()
         if movie_id is not None:
             movie_id = str(movie_id)
@@ -180,30 +181,44 @@ class Graph:
         elif movie_id is not None and movie_id2 is not None:
             neighbors1 = set(self.graph.neighbors(movie_id))
             neighbors2 = set(self.graph.neighbors(movie_id2))
+
+            # Perform BFS to find all nodes within max_hops
+            def bfs(start_node, max_hops, max_connections):
+                visited = set()
+                queue = [(start_node, 0)]  # (node, current_hop)
+                reachable_nodes = set()
+
+                while queue and len(reachable_nodes) < max_connections:
+                    current_node, current_hop = queue.pop(0)
+                    if current_hop < max_hops and current_node not in visited:
+                        visited.add(current_node)
+                        reachable_nodes.add(current_node)
+                        for neighbor in self.graph.neighbors(current_node):
+                            if neighbor not in visited:
+                                queue.append((neighbor, current_hop + 1))
+                return reachable_nodes
+
+            reachable_from_movie1 = bfs(movie_id, max_hops, max_connections)
+            reachable_from_movie2 = bfs(movie_id2, max_hops, max_connections)
+
+            # Combine reachable nodes and find shared neighbors
+            combined_reachable = reachable_from_movie1 | reachable_from_movie2
             shared_neighbors = neighbors1 & neighbors2
 
-            if not shared_neighbors:
-                return json.dumps({'error': f"No shared actors found between movies '{movie_title}' and '{movie_title2}'."})
-
             # Limit the number of shared neighbors
-            shared_neighbors_sorted = sorted(shared_neighbors, key=lambda x: len(list(self.graph.neighbors(x))), reverse=True)
-            limited_shared_neighbors = shared_neighbors_sorted[:max_connections]
+            if shared_neighbors:
+                shared_neighbors_sorted = sorted(shared_neighbors, key=lambda x: len(list(self.graph.neighbors(x))),
+                                                 reverse=True)
+                limited_shared_neighbors = shared_neighbors_sorted[:max_connections]
+            else:
+                return json.dumps(
+                    {'error': f"No shared actors found between movies '{movie_title}' and '{movie_title2}'."})
 
-            # Create a subgraph with the two movies and their shared neighbors
-            subgraph = self.graph.subgraph([movie_id, movie_id2] + limited_shared_neighbors)
+            # Create a subgraph with the two movies and their reachable neighbors
+            subgraph = self.graph.subgraph([movie_id, movie_id2] + list(combined_reachable) + limited_shared_neighbors)
 
-            shared_actors_1 = {}
-            shared_actors_2 = {}
+            # Existing logic to extract shared actors and build the plot...
 
-            # Loop through the shared neighbors and get the actors for both movies
-            for node in subgraph.nodes():
-                if node != movie_id and node != movie_id2:
-                    # Get the shared actors for the first movie (movie_id)
-                    shared_actors_1[node] = set(subgraph[movie_id][node].get('actors', []))
-                    # Get the shared actors for the second movie (movie_id2)
-                    shared_actors_2[node] = set(subgraph[movie_id2][node].get('actors', []))
-
-        # Return an error if no movie id provided
         else:
             return json.dumps({'error': f"Movie '{movie_title}' not found."})
 
@@ -306,11 +321,11 @@ class Graph:
                 node_hover_text = f"Shared Actors with {movie_title}: {shared_actors}"
             # if two movies given, prints the actors shared with both
             elif movie_id and node != movie_id and subgraph.has_edge(movie_id, node) and movie_id2 and node != movie_id2 and subgraph.has_edge(movie_id2, node):
-                shared_actors_1_text = ', '.join(shared_actors_1.get(node, []))
-                shared_actors_2_text = ', '.join(shared_actors_2.get(node, []))
+                # shared_actors_1_text = ', '.join(shared_actors_1.get(node, []))
+                # shared_actors_2_text = ', '.join(shared_actors_2.get(node, []))
                 node_text = f"Movie: {movie_name}"
-                node_hover_text = f"Shared Actors with {movie_title}: {shared_actors_1_text}"
-                node_hover_text += f"<br>Shared Actors with {movie_title2}: {shared_actors_2_text}"
+                # node_hover_text = f"Shared Actors with {movie_title}: {shared_actors_1_text}"
+                # node_hover_text += f"<br>Shared Actors with {movie_title2}: {shared_actors_2_text}"
 
             # if two movies are given and they connect with each other
             elif movie_id and movie_id2 and subgraph.has_edge(movie_id, movie_id2):
