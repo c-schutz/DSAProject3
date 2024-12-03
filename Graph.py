@@ -584,7 +584,8 @@ class Graph:
                     shared_actors = ', '.join(subgraph[node][neighbor]['actors'])
                     neighbor_name = self.movies_df.loc[self.movies_df['id'] == neighbor, 'original_title'].values
                     neighbor_name = neighbor_name[0] if neighbor_name.size > 0 else neighbor
-                    node_hover_text += f"<br>Shared Actors with {neighbor_name}: {shared_actors}"
+                    if neighbor_name != movie_name:
+                        node_hover_text += f"<br>Shared Actors with {neighbor_name}: {shared_actors}"
 
             # Add additional information based on options
             if len(self.options) > 0:
