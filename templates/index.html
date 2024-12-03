@@ -14,10 +14,12 @@
             color: #333;
         }
         h1 {
-            text-align: center;
+            flex: 1;
             color: #4A90E2;
-            margin-bottom: 20px;
+            margin: 0;
+            text-align: center
         }
+
         #graph {
             width: 100%;
             height: 600px;
@@ -91,12 +93,107 @@
             color: #4A90E2;
             margin-bottom: 10px;
         }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .header-container {
+            display: flex;
+            align-items: center; /* Vertical alignment */
+            justify-content: space-between; /* Title in the center, settings on the right */
+            padding: 0 20px;
+            height: 100px; /* Optional: Adjust height as needed */
+        }
+
+        .settings-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .settings-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .settings-button:hover {
+            background-color: #0056b3;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 25px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px; /* Width of the toggle */
+            height: 25px; /* Height of the toggle */
+        }
+
+        .toggle-switch input {
+            opacity: 0; /* Hide the checkbox */
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc; /* Default slider background */
+            border-radius: 25px; /* Make it a pill shape */
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .slider:before {
+            content: "";
+            position: absolute;
+            height: 19px; /* Diameter of the inner circle */
+            width: 19px;
+            left: 3px; /* Starting position inside the toggle */
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%; /* Make it a circle */
+            transition: transform 0.3s; /* Smooth transition for the toggle */
+        }
+
+        input:checked + .slider {
+            background-color: #007bff; /* Background when toggled */
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(13px); /* Distance to move the circle */
+        }
+
+        .dummy {
+            flex: .1;
+        }
+
     </style>
 </head>
 <body>
-    <h1>
-        Movie Graph Visualizer
-    </h1>
+<div class="header-container">
+    <div class="dummy"></div>
+    <h1>Movie Graph Visualizer</h1>
+    <div class="settings-container">
+        <button class="settings-button">Settings</button>
+        <label class="toggle-switch">
+            <input type="checkbox" id="toggle">
+            <span class="slider"></span>
+        </label>
+    </div>
+</div>
 <div class="form-group">
     <button id="movie-options-button">Choose one or more options(use Ctrl+Left-Click):</button>
     <div id="movie-options-container" style="display: none;">
