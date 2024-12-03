@@ -1,9 +1,39 @@
-This is the Data Structures and Algorithms Project 3 github page for Caleb Schutz, Gavin Anthony and Ben Pratt
+# Movie Graph
 
-Things that need to get done:
-    
-    &emsp;Setting to allow user to choose two movies to show connections instead of just a graph of one  
-    
-    &emsp;Analysis of Dijkstra's versus BFS for Big Oh
-    
-    &emsp; Show shared actors for BFS and Dijkstra, already done on Normal movie visualizer should be simple
+## Overview
+
+The Movie Graph project allows users to explore relationships between movies based on shared actors. It implements two algorithms: Breadth-First Search (BFS) and Dijkstra's algorithm, to find paths between movies and analyze their connections.
+
+## Features
+
+- **Find connections between movies**: Use BFS to find a path from one movie to another based on shared actors.
+- **Shortest path calculation**: Use Dijkstra's algorithm to find the shortest path between two movies, considering edge weights.
+- **Visualization**: Visualize the graph and the paths between movies.
+
+## Requirements
+
+- Python 3.x
+- Required libraries:
+  - `pandas`
+  - `networkx`
+  - `plotly`
+  - `heapq`
+  - `ast`
+  - `json`
+
+## Setup
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/c-schutz/DSAProject3.git
+   cd movie-graph
+2. **Install Required Libraries**:
+    ```bash
+   pip install pandas networkx plotly
+3. **Prepare the Data Files**:
+    Make sure that both `movies_metadata.csv` and `credits.csv` are in the repo
+## Usage
+1. **Run the script**:
+    Execute `app.py` to start the application
+    ```bash
+   python app.py
