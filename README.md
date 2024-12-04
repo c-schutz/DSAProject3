@@ -56,7 +56,7 @@ The Movie Vizualization Graph project allows users to explore relationships betw
    -**Add Second Movie**:<br />
        If you would like to see two movies and all the connections at a certain distance click the `Add Second Movie` button<br />
        Then Enter both Movie Title and Second Movie Title. To change the distance that the BFS will look to connect Movies increase or decrease `Max Distance`<br />
-       Finally click `Visualize Two Movies` and watch the magic happen<br />
+       Finally click `Visualize Two Movies` and watch the magic happen. If the Movies do not share a movie connection this will not work however<br />
    -**Add more data**:<br />
        If you would like to see some different movie data such as `Date Released` or `Revenue` click on the big button in the top middle titled `Choose one or more options`<br />
        Choose as few or as many of the different options as you would like. Then choose the method you would like to look at the movies from and as always watch the magic happen
