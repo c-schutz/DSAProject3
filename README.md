@@ -16,19 +16,17 @@ The Movie Vizualization Graph project allows users to explore relationships betw
 - Required libraries:
   - `pandas`
   - `networkx`
-  - `plotly`
+  - `plotly (version 5.24.1)`
   - `heapq`
   - `ast`
   - `json`
 
 ## Version Control
-<div style="display: flex; justify-content: center;">
   
-    If you encounter issues your package versions may be incorrect, make sure that they match what we used below (in white).
+    If you encounter issues, your package versions may be incorrect. 
+    Make sure that they match what we used below (in white).
 
-</div>
-## Setup
-
+![image](https://github.com/c-schutz/DSAProject3/blob/main/img.png?raw=true)
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/c-schutz/DSAProject3.git
