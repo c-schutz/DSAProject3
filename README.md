@@ -21,12 +21,6 @@ The Movie Vizualization Graph project allows users to explore relationships betw
   - `ast`
   - `json`
 
-## Version Control
-  
-    If you encounter issues, your package versions may be incorrect. 
-    Make sure that they match what we used below (in white).
-
-![image](https://github.com/c-schutz/DSAProject3/blob/main/img.png?raw=true)
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/c-schutz/DSAProject3.git
@@ -36,6 +30,14 @@ The Movie Vizualization Graph project allows users to explore relationships betw
    pip install pandas networkx plotly
 3. **Prepare the Data Files**:<br />
     Make sure that both `movies_metadata.csv` and `credits.csv` are in the repo
+
+## Version Control
+  
+    If you encounter issues, your package versions may be incorrect. 
+    Make sure that they match what we used below (in white).
+
+![image](https://github.com/c-schutz/DSAProject3/blob/main/img.png?raw=true)
+
 ## Usage
 1. **Run the script**:<br />
     Execute `app.py` to start the application
