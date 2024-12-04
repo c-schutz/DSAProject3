@@ -654,6 +654,22 @@
             secondButton.required = false;
             secondButton.style.marginLeft = '4px';
 
+            // checks for dark mode before addding second movie
+            const toggleCheckbox = document.getElementById('toggle');
+                if (toggleCheckbox.checked) {
+                    secondButton.style.backgroundColor = "#333333";
+                    secondButton.style.color = "#E0E0E0";
+                    secondButton.style.border = "1px solid #252525";
+
+                    input.style.backgroundColor = "#252525";
+                    input.style.color = "#E0E0E0";
+                    maxDistanceInput.style.backgroundColor = "#252525";
+                    maxDistanceInput.style.color = "#E0E0E0";
+
+                    label.style.color = "black";
+                    maxDistanceLabel.style.color = "black";
+                }
+
             secondButton.addEventListener('click', async function () {
                 document.getElementById('result').innerHTML = ''; // clear previous message
                 document.getElementById('graph').innerHTML = ''; // clear previous graph
