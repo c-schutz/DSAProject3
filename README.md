@@ -21,6 +21,13 @@ The Movie Vizualization Graph project allows users to explore relationships betw
   - `ast`
   - `json`
 
+## Version Control
+<div style="display: flex; justify-content: center;">
+  
+    If you encounter issues your package versions may be incorrect, make sure that they match what we used below (in white).
+
+</div>
+
 ## Setup
 
 1. **Clone the repository**:
