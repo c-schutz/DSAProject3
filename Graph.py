@@ -135,7 +135,7 @@ class Graph:
             return movie_data
         # If a single movie is found, return its ID
         return matching_movies.iloc[0]['id']
-    def visualize_graph(self, movie_name=None, max_connections=15):
+    def visualize_graph(self, movie_name=None, max_connections=15, dark_mode=False):
         if movie_name is None:
             return json.dumps({'error': 'No movie name provided.'})
 
@@ -151,10 +151,11 @@ class Graph:
         # If a single movie is found, get its ID
         movie_id = matching_movies.iloc[0]['id']
         # returns original title from dataset so there's no capitalization errors
-        return self.visualize_graph_by_id(movie_id, matching_movies.iloc[0]['original_title'], max_connections)
+        return self.visualize_graph_by_id(movie_id, matching_movies.iloc[0]['original_title'], max_connections, dark_mode=dark_mode)
 
     def visualize_graph_by_id(self, movie_id=None, movie_title=None, max_connections=15, movie_id2=None,
-                              movie_title2=None, max_hops=2):
+                              movie_title2=None, max_hops=2, dark_mode = False):
+        print(dark_mode)
         fig = make_subplots()
         if movie_id is not None:
             movie_id = str(movie_id)
@@ -407,11 +408,18 @@ class Graph:
         for edge_trace in edge_traces:  # edge_traces is the list of edge Scatter objects
             fig.add_trace(edge_trace)
         fig.add_trace(node_trace)
-        fig.update_layout(
-            showlegend=False,
-            plot_bgcolor='white',  # Background of the plot area
-            paper_bgcolor='white'  # Background of the entire figure
-        )
+        if not dark_mode:
+            fig.update_layout(
+                showlegend=False,
+                plot_bgcolor='white',  # Background of the plot area
+                paper_bgcolor='white'  # Background of the entire figure
+            )
+        else:
+            fig.update_layout(
+                showlegend=False,
+                plot_bgcolor='grey',
+                paper_bgcolor='grey'
+            )
         fig.update_xaxes(showgrid=False, showticklabels=False)
         fig.update_yaxes(showgrid=False, showticklabels=False)
 

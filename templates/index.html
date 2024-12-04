@@ -410,6 +410,7 @@
     toggleCheckbox.addEventListener('change', function () {
         if (toggleCheckbox.checked) {
             // Apply dark mode styles
+            localStorage.setItem('darkMode', 'true');
             document.body.style.backgroundColor = "#121212";
             document.body.style.color = "#E0E0E0";
             document.getElementById('visualization-form').style.backgroundColor = "#D0D0D0";
@@ -497,6 +498,8 @@
     document.getElementById('movie-form').addEventListener('submit', function (event) {
         event.preventDefault();
         const formData = new FormData(this);
+        const darkMode = document.getElementById('toggle').checked ? 'true' : 'false';
+        formData.append('dark_mode', darkMode);
         fetch('/visualize', {
             method: 'POST',
             body: formData
@@ -535,13 +538,14 @@
                         e.preventDefault();
                         const selectedMovieId = this.movie_id.value;
                         const maxConnections = document.getElementById('max_connections').value;
-
+                        const darkMode = document.getElementById('toggle').checked ? 'true' : 'false';
                         // Fetch the graph data for the selected movie
                         fetch('/visualizeID', {
                             method: 'POST',
                             body: new URLSearchParams({
                                 movie_id: selectedMovieId,
-                                max_connections: maxConnections
+                                max_connections: maxConnections,
+                                dark_mode: darkMode
                             })
                         })
                             .then(response => response.json())
@@ -721,6 +725,7 @@
                         start_movie: secondMovieName
                     })
                 }).then(response => response.json());
+                const darkMode = document.getElementById('toggle').checked ? 'true' : 'false';
 
                 // Handle the case where multiple movies are found for the second movie
                 if (Array.isArray(secondMovieData.start_movie_data)) {
@@ -767,7 +772,8 @@
                             movie_id: firstMovieId,
                             movie_id2: secondMovieId,
                             max_connections: maxConnections, // Include max connections in the request
-                            max_distance: maxDistance // Include max distance in the request
+                            max_distance: maxDistance, // Include max distance in the request
+                            dark_mode: darkMode
                         })
                     })
                         .then(response => {
