@@ -36,7 +36,7 @@ The Movie Vizualization Graph project allows users to explore relationships betw
     If you encounter issues, your package versions may be incorrect. 
     Make sure that they match what we used below (in white).
 
-![image](https://github.com/c-schutz/DSAProject3/blob/main/img.png?raw=true)
+![image](https://github.com/c-schutz/DSAProject3/raw/main/img.png?raw=true)
 
 ## Usage
 1. **Run the script**:<br />
