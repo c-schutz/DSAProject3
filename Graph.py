@@ -561,7 +561,7 @@ class Graph:
             edge_trace = go.Scatter(
                 x=[x0, x1, None],
                 y=[y0, y1, None],
-                line=dict(color='#444', width=weight * 0.5),  # Use weight for the line width
+                line=dict(color='#444', width=weight * 0.5 if weight < 10 else 4),  # Use weight for the line width
                 hoverinfo='text',
                 text=""
             )

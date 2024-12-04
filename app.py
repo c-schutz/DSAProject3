@@ -22,6 +22,11 @@ def visualize():
     # Visualize the graph for the given movie_name and return JSON data
     graph_data = movie_graph.visualize_graph(movie_name, max_connections)
 
+    # checks if an error message was returned and returns that message to be displayed
+    if graph_data[:9] == '{"error":':
+        error_message = graph_data[11:-3]
+        return jsonify(error=error_message)
+
     if isinstance(graph_data, list):  # If it's a list of movies
         return jsonify(graph_data)  # Return the movie list as JSON
 
@@ -55,9 +60,6 @@ def visualizeTwoMovies():
 
     # Visualize the graph for the given movie_name and return JSON data
     graph_data = movie_graph.visualize_graph_by_id(movie_id, movie_name, max_connections, movie_id2, movie_name2, max_distance)
-
-    # if isinstance(graph_data, list):  # If it's a list of movies
-    #     return jsonify(graph_data)  # Return the movie list as JSON
 
     return jsonify({'graph_data': graph_data})
 
@@ -97,6 +99,18 @@ def get_movie_list():
     target_movie_name = request.form.get('target_movie')
     start_movie_data = movie_graph.get_movie_list(start_movie_name)
     target_movie_data = movie_graph.get_movie_list(target_movie_name)
+
+    # checks if an error message was returned and returns that message to be displayed
+    if start_movie_data[:9] == '{"error":':
+        if target_movie_data[:9] == '{"error":' and target_movie_name is not None:
+            error_message = start_movie_data[11:-3] + "\n" + target_movie_data[11:-3]
+            return jsonify(error=error_message)
+        error_message = start_movie_data[11:-3]
+        return jsonify(error=error_message)
+    if target_movie_data[:9] == '{"error":'and target_movie_name is not None:
+        error_message = target_movie_data[11:-3]
+        return jsonify(error=error_message)
+
     return jsonify({'start_movie_data': start_movie_data, 'target_movie_data': target_movie_data})
 
 import time

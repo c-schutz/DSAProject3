@@ -607,37 +607,50 @@ document.getElementById('second-movie').addEventListener('click', function() {
                 secondMovieId = secondMovieData.start_movie_data;
             }
 
-            // Fetch the graph data for the two selected movies
-            fetch('/visualizeTwoMovies', {
-                method: 'POST',
-                body: new URLSearchParams({
-                    movie_name: firstMovieName,
-                    movie_name2: secondMovieName,
-                    movie_id: firstMovieId,
-                    movie_id2: secondMovieId,
-                    max_connections: maxConnections, // Include max connections in the request
-                    max_distance: maxDistance // Include max distance in the request
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.graph_data) {
-                    const graphData = JSON.parse(data.graph_data);
-                    Plotly.newPlot('graph', graphData.data, graphData.layout);
-                    document.getElementById('result').innerText = ''; // Clear previous errors
-                } else {
-                    document.getElementById('result').innerText = data.error || 'An error occurred.';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('result').innerText = 'An error occurred while fetching the data.';
-            });
+            // checks for specialized error messages
+             if(firstMovieData.error) {
+                 if(secondMovieData.error) {
+                     document.getElementById('result').innerText = firstMovieData.error || 'An error occurred.';
+                     document.getElementById('result').innerText += "\n" + secondMovieData.error || 'An error occurred.';
+                 }
+                 else
+                    document.getElementById('result').innerText = firstMovieData.error || 'An error occurred.';
+             }
+             else if(secondMovieData.error)
+                 document.getElementById('result').innerText = secondMovieData.error || 'An error occurred.';
+             else {
+                 // Fetch the graph data for the two selected movies
+                 fetch('/visualizeTwoMovies', {
+                     method: 'POST',
+                     body: new URLSearchParams({
+                         movie_name: firstMovieName,
+                         movie_name2: secondMovieName,
+                         movie_id: firstMovieId,
+                         movie_id2: secondMovieId,
+                         max_connections: maxConnections, // Include max connections in the request
+                         max_distance: maxDistance // Include max distance in the request
+                     })
+                 })
+                     .then(response => {
+                         if (!response.ok) {
+                             throw new Error('Network response was not ok');
+                         }
+                         return response.json();
+                     })
+                     .then(data => {
+                         if (data.graph_data) {
+                             const graphData = JSON.parse(data.graph_data);
+                             Plotly.newPlot('graph', graphData.data, graphData.layout);
+                             document.getElementById('result').innerText = ''; // Clear previous errors
+                         } else {
+                             document.getElementById('result').innerText = data.error || 'An error occurred.';
+                         }
+                     })
+                     .catch(error => {
+                         console.error('Error:', error);
+                         document.getElementById('result').innerText = 'An error occurred while fetching the data.';
+                     });
+             }
         });
 
         container.appendChild(label);
@@ -667,101 +680,105 @@ document.getElementById('second-movie').addEventListener('click', function() {
             })
                 .then(response => response.json())
                 .then(async data => {
-                    // if multiple movies found prints out a list of options
-                    if (Array.isArray(data.start_movie_data)) {
-                        // Handle the case where multiple movies are found
-                        let movieListHTML = '<h2>Select a Movie</h2><form id="start-selection-form"><ul>';
-                        data.start_movie_data.forEach(movie => {
-                            // Check for Release Date
-                            let releaseDate = 'Unknown Year';
-                            if (movie.release_date)
-                                releaseDate = movie.release_date;
-                            // Check for Top Cast
-                            let movieCast = 'Unknown Cast';
-                            if (movie.cast && movie.cast !== 'Unknown Cast') {
-                                movieCast = movie.cast;
-                            }
-                            movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
+                    if(data.error)
+                        document.getElementById('result').innerText = data.error || 'An error occurred';
+                    else {
+                        // if multiple movies found prints out a list of options
+                        if (Array.isArray(data.start_movie_data)) {
+                            // Handle the case where multiple movies are found
+                            let movieListHTML = '<h2>Select a Movie</h2><form id="start-selection-form"><ul>';
+                            data.start_movie_data.forEach(movie => {
+                                // Check for Release Date
+                                let releaseDate = 'Unknown Year';
+                                if (movie.release_date)
+                                    releaseDate = movie.release_date;
+                                // Check for Top Cast
+                                let movieCast = 'Unknown Cast';
+                                if (movie.cast && movie.cast !== 'Unknown Cast') {
+                                    movieCast = movie.cast;
+                                }
+                                movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
                         <label for="movie_${movie.id}">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
                         </li>`;
-                        });
-                        movieListHTML += '</ul><button type="submit">Find Kevin Bacon Number</button></form>';
-                        document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
-                        document.getElementById('graph').innerHTML = ''; // Clear previous graph
-
-                        // Add event listener for the movie selection form
-                        startMovieId = await new Promise(resolve => {
-                            const form = document.getElementById('start-selection-form');
-                            form.addEventListener('submit', function (e) {
-                                e.preventDefault(); // prevents form submission
-                                resolve(this.movie_id.value); // resolves the promise with the selected movie ID
                             });
-                        });
-                    } else
-                        startMovieId = data.start_movie_data;
+                            movieListHTML += '</ul><button type="submit">Find Kevin Bacon Number</button></form>';
+                            document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
+                            document.getElementById('graph').innerHTML = ''; // Clear previous graph
 
-                    // same process but with target movie
-                    if (Array.isArray(data.target_movie_data)) {
-                        // Handle the case where multiple movies are found
-                        let movieListHTML = '<h2>Select a Movie</h2><form id="target-selection-form"><ul>';
-                        data.target_movie_data.forEach(movie => {
-                            // Check for Release Date
-                            let releaseDate = 'Unknown Year';
-                            if (movie.release_date) {
-                                releaseDate = movie.release_date;
-                            }
-                            // Check for Top Cast
-                            let movieCast = 'Unknown Cast';
-                            if (movie.cast && movie.cast !== 'Unknown Cast') {
-                                movieCast = movie.cast;
-                            }
+                            // Add event listener for the movie selection form
+                            startMovieId = await new Promise(resolve => {
+                                const form = document.getElementById('start-selection-form');
+                                form.addEventListener('submit', function (e) {
+                                    e.preventDefault(); // prevents form submission
+                                    resolve(this.movie_id.value); // resolves the promise with the selected movie ID
+                                });
+                            });
+                        } else
+                            startMovieId = data.start_movie_data;
 
-                            movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
+                        // same process but with target movie
+                        if (Array.isArray(data.target_movie_data)) {
+                            // Handle the case where multiple movies are found
+                            let movieListHTML = '<h2>Select a Movie</h2><form id="target-selection-form"><ul>';
+                            data.target_movie_data.forEach(movie => {
+                                // Check for Release Date
+                                let releaseDate = 'Unknown Year';
+                                if (movie.release_date) {
+                                    releaseDate = movie.release_date;
+                                }
+                                // Check for Top Cast
+                                let movieCast = 'Unknown Cast';
+                                if (movie.cast && movie.cast !== 'Unknown Cast') {
+                                    movieCast = movie.cast;
+                                }
+
+                                movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
                         <label for="movie_${movie.id}">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
                         </li>`;
-                        });
-                        movieListHTML += '</ul><button type="submit">Find Kevin Bacon Number</button></form>';
-                        document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
-                        document.getElementById('graph').innerHTML = ''; // Clear previous graph
-
-                        // Add event listener for the movie selection form
-                        targetMovieId = await new Promise(resolve => {
-                            const form = document.getElementById('target-selection-form');
-                            form.addEventListener('submit', function (e) {
-                                e.preventDefault(); // prevents form submission
-                                resolve(this.movie_id.value); // resolves the promise with the selected movie ID
                             });
-                        });
-                    } else
-                        targetMovieId = data.target_movie_data;
+                            movieListHTML += '</ul><button type="submit">Find Kevin Bacon Number</button></form>';
+                            document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
+                            document.getElementById('graph').innerHTML = ''; // Clear previous graph
 
-                    // calling the passed-in search choice from the function
-                    fetch(search_method, {
-                        method: 'POST',
-                        body: new URLSearchParams({
-                            start_movie: startMovie,
-                            target_movie: targetMovie,
-                            start_movie_id: startMovieId,
-                            target_movie_id: targetMovieId
+                            // Add event listener for the movie selection form
+                            targetMovieId = await new Promise(resolve => {
+                                const form = document.getElementById('target-selection-form');
+                                form.addEventListener('submit', function (e) {
+                                    e.preventDefault(); // prevents form submission
+                                    resolve(this.movie_id.value); // resolves the promise with the selected movie ID
+                                });
+                            });
+                        } else
+                            targetMovieId = data.target_movie_data;
+
+                        // calling the passed-in search choice from the function
+                        fetch(search_method, {
+                            method: 'POST',
+                            body: new URLSearchParams({
+                                start_movie: startMovie,
+                                target_movie: targetMovie,
+                                start_movie_id: startMovieId,
+                                target_movie_id: targetMovieId
+                            })
                         })
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.graph_data) {
-                                document.getElementById('result').innerText = 'Time taken to find path: ' + data.run_time.toFixed(4) + ' seconds';
-                                const graphData = JSON.parse(data.graph_data);
-                                Plotly.newPlot('graph', graphData.data, graphData.layout);
-                            } else {
-                                document.getElementById('result').innerText = data.error || 'An error occurred';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            if(search_method === '/dijkstra')
-                                document.getElementById('result').innerText = 'An error occurred while performing Dijkstra';
-                            else if(search_method === '/bfs')
-                                document.getElementById('result').innerText = 'An error occurred while performing BFS';
-                        });
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.graph_data) {
+                                    document.getElementById('result').innerText = 'Time taken to find path: ' + data.run_time.toFixed(4) + ' seconds';
+                                    const graphData = JSON.parse(data.graph_data);
+                                    Plotly.newPlot('graph', graphData.data, graphData.layout);
+                                } else {
+                                    document.getElementById('result').innerText = data.error || 'An error occurred';
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                if (search_method === '/dijkstra')
+                                    document.getElementById('result').innerText = 'An error occurred while performing Dijkstra';
+                                else if (search_method === '/bfs')
+                                    document.getElementById('result').innerText = 'An error occurred while performing BFS';
+                            });
+                    }
                 })
                 .catch(error => {
                     console.error('Error:', error);
