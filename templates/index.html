@@ -419,7 +419,7 @@
 
 
             document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
-                el.style.color = "#333333";
+                el.style.color = "#4A90E2";
             });
 
             document.querySelectorAll('button').forEach(el => {
@@ -455,7 +455,7 @@
             document.getElementById('graph').style.backgroundColor = "white";
 
             document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
-                el.style.color = "#4A90E2";
+                el.style.color = "#333333";
             });
 
             document.querySelectorAll('button').forEach(el => {
@@ -508,7 +508,7 @@
             .then(data => {
                 if (Array.isArray(data)) {
                     // Handle the case where multiple movies are found
-                    let movieListHTML = '<h2>Select a Movie</h2><form id="movie-selection-form"><ul>';
+                    let movieListHTML = '<h2>Select a Movie</h2><form id="movie-selection-form" style="color: black;"><ul>';
                     data.forEach(movie => {
                         // Check for Release Date
                         let releaseDate = 'Unknown Year';
@@ -521,7 +521,7 @@
                             movieCast = movie.cast;
                         }
                         movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
-                        <label for="movie_${movie.id}">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
+                        <label for="movie_${movie.id}" style="color: red;">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
                         </li>`;
                     });
                     movieListHTML += '</ul><button type="submit">Visualize</button></form>';
@@ -677,7 +677,7 @@
                         let releaseDate = movie.release_date || 'Unknown Year';
                         let movieCast = movie.cast && movie.cast !== 'Unknown Cast' ? movie.cast : 'Unknown Cast';
                         movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
-                        <label for="movie_${movie.id}">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
+                        <label for="movie_${movie.id}" style="color: red;">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
                         </li>`;
                     });
                     movieListHTML += '</ul><button type="submit">Visualize</button></form>';
@@ -711,7 +711,7 @@
                         let releaseDate = movie.release_date || 'Unknown Year';
                         let movieCast = movie.cast && movie.cast !== 'Unknown Cast' ? movie.cast : 'Unknown Cast';
                         movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
-                        <label for="movie_${movie.id}">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
+                        <label for="movie_${movie.id}" style="color: red;">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
                         </li>`;
                     });
                     movieListHTML += '</ul><button type="submit">Visualize</button></form>';
@@ -820,7 +820,7 @@
                                     movieCast = movie.cast;
                                 }
                                 movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
-                        <label for="movie_${movie.id}">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
+                        <label for="movie_${movie.id}" style="color: red;">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
                         </li>`;
                             });
                             movieListHTML += '</ul><button type="submit">Find Kevin Bacon Number</button></form>';
@@ -855,7 +855,7 @@
                                 }
 
                                 movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
-                        <label for="movie_${movie.id}">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
+                        <label for="movie_${movie.id}" style="color: red;">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})></label>
                         </li>`;
                             });
                             movieListHTML += '</ul><button type="submit">Find Kevin Bacon Number</button></form>';
