@@ -173,11 +173,15 @@
         }
 
         input:checked + .slider:before {
-            transform: translateX(13px);
+            transform: translateX(16px);
         }
 
         .dummmy {
             flex: .1;
+        }
+
+        label {
+            color: #000000;
         }
 
     </style>
@@ -187,8 +191,8 @@
     <div class="dummmy"></div>
     <h1>Movie Graph Visualizer</h1>
     <div class="settings-container">
-        <button class="settings-button">Settings</button>
-        <label class="toggle-switch">
+        <button class="settings-button" onclick="toggleVisibility()">Dark Mode</button>
+        <label class="toggle-switch" id="toggle-container">
             <input type="checkbox" id="toggle">
             <span class="slider"></span>
         </label>
@@ -210,13 +214,6 @@
 <div id="check"></div>
 
 <script>
-    // Add event listener to the button
-    document.getElementById('movie-options-button').addEventListener('click', () => {
-        // Toggle the display of the select element
-        const movieOptionsContainer = document.getElementById('movie-options-container');
-        movieOptionsContainer.style.display = movieOptionsContainer.style.display === 'none' ? 'block' : 'none';
-    });
-
     // Add event listener to the select element
     document.getElementById('movie_options').addEventListener('change', () => {
         // Get all selected options
@@ -350,6 +347,23 @@
 </div>
 
 <script>
+    // Add event listener to the button
+    document.getElementById('movie-options-button').addEventListener('click', () => {
+        // Toggle the display of the select element
+        const movieOptionsContainer = document.getElementById('movie-options-container');
+        movieOptionsContainer.style.display = movieOptionsContainer.style.display === 'none' ? 'block' : 'none';
+    });
+
+    //Toggles visibility of darkmode toggle switch
+    function toggleVisibility() {
+        const toggleContainer = document.getElementById('toggle-container');
+        if (toggleContainer.style.visibility === 'hidden') {
+            toggleContainer.style.visibility = 'visible';
+        } else {
+            toggleContainer.style.visibility = 'hidden';
+        }
+    }
+
     const startMovieDijkstraInput = document.getElementById('startMovie');
     const targetMovieDijkstraInput = document.getElementById('targetMovie');
     const dijkstraSuggestionsDiv = document.getElementById('dijkstra-suggestions');
@@ -359,7 +373,7 @@
         fetchSuggestions(query, dijkstraSuggestionsDiv, startMovieDijkstraInput);
     });
 
-    targetMovieDijkstraInput.addEventListener('input', function() {
+    targetMovieDijkstraInput.addEventListener('input', function () {
         const query = targetMovieDijkstraInput.value;
         fetchSuggestions(query, dijkstraSuggestionsDiv, targetMovieDijkstraInput);
     });
@@ -374,7 +388,7 @@
                         const suggestionButton = document.createElement('button');
                         suggestionButton.textContent = movie;
                         suggestionButton.classList.add('suggestion-button');
-                        suggestionButton.onclick = function() {
+                        suggestionButton.onclick = function () {
                             inputField.value = movie; // Fill in the input field
                             suggestionsDiv.innerHTML = ''; // Clear suggestions
                         };
@@ -390,26 +404,103 @@
     <div id="result"></div>
     <div id="graph"></div>
 
-    <script>
-        // Handle switching between forms
-        document.getElementById('feature-select').addEventListener('change', function() {
-            const selectedValue = this.value;
-            document.querySelectorAll('.form-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.getElementById(selectedValue).classList.add('active');
-        });
+<script>
+    //Listens for toggle being clicked and changes elements to darkmode
+    const toggleCheckbox = document.getElementById('toggle');
+    toggleCheckbox.addEventListener('change', function () {
+        if (toggleCheckbox.checked) {
+            // Apply dark mode styles
+            document.body.style.backgroundColor = "#121212";
+            document.body.style.color = "#E0E0E0";
+            document.getElementById('visualization-form').style.backgroundColor = "#D0D0D0";
+            document.getElementById('bfs-form').style.backgroundColor = "#D0D0D0";
+            document.getElementById('dijkstra-form').style.backgroundColor = "#D0D0D0";
+            document.getElementById('graph').style.backgroundColor = "#D0D0D0";
 
-        // Visualization form submission
-        document.getElementById('movie-form').addEventListener('submit', function (event) {
-            event.preventDefault();
-            const formData = new FormData(this);
-            fetch('/visualize', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => {
-                    if (!response.ok) {
+
+            document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+                el.style.color = "#333333";
+            });
+
+            document.querySelectorAll('button').forEach(el => {
+                el.style.backgroundColor = "#333333";
+                el.style.color = "#E0E0E0";
+                el.style.border = "1px solid #252525";
+            });
+
+            document.querySelectorAll('a').forEach(el => {
+                el.style.color = "#1E88E5";
+            });
+
+            document.querySelectorAll('input, select, textarea').forEach(el => {
+                el.style.backgroundColor = "#252525";
+                el.style.color = "#E0E0E0";
+                el.style.border = "1px solid #333333";
+            });
+
+            document.querySelectorAll('.error').forEach(el => {
+                el.style.color = "#CF6679";
+            });
+
+            document.getElementById('movie-title').style.color = "#1E1E1E";
+            document.getElementById('max-connections').style.color = "#1E1E1E";
+
+        } else {
+            // Revert to light mode styles
+            document.body.style.backgroundColor = "#f4f4f4";
+            document.body.style.color = "#333";
+            document.getElementById('visualization-form').style.backgroundColor = "white";
+            document.getElementById('bfs-form').style.backgroundColor = "white";
+            document.getElementById('dijkstra-form').style.backgroundColor = "white";
+            document.getElementById('graph').style.backgroundColor = "white";
+
+            document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+                el.style.color = "#4A90E2";
+            });
+
+            document.querySelectorAll('button').forEach(el => {
+                el.style.backgroundColor = "#4A90E2";
+                el.style.color = "white";
+                el.style.border = "none";
+            });
+
+            document.querySelectorAll('a').forEach(el => {
+                el.style.color = "#4A90E2";
+            });
+
+            document.querySelectorAll('input, select, textarea').forEach(el => {
+                el.style.backgroundColor = "white";
+                el.style.color = "#333";
+                el.style.border = "1px solid #ccc";
+            });
+
+            document.querySelectorAll('.error').forEach(el => {
+                el.style.color = "#d9534f";
+            });
+
+            document.getElementById('movie-title').style.color = "#000000";
+            document.getElementById('max-connections').style.color = "#000000";
+        }
+    });
+    // Handle switching between forms
+    document.getElementById('feature-select').addEventListener('change', function () {
+        const selectedValue = this.value;
+        document.querySelectorAll('.form-section').forEach(section => {
+            section.classList.remove('active');
+        });
+        document.getElementById(selectedValue).classList.add('active');
+    });
+
+    // Visualization form submission
+    document.getElementById('movie-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        fetch('/visualize', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (!response.ok) {
                     throw new Error('Network response was not ok');
                 }
                 return response.json();
@@ -424,7 +515,7 @@
                         if (movie.release_date) {
                             releaseDate = movie.release_date;
                         }
-                         // Check for Top Cast
+                        // Check for Top Cast
                         let movieCast = 'Unknown Cast';
                         if (movie.cast && movie.cast !== 'Unknown Cast') {
                             movieCast = movie.cast;
@@ -432,13 +523,13 @@
                         movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
                         <label for="movie_${movie.id}">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
                         </li>`;
-            });
+                    });
                     movieListHTML += '</ul><button type="submit">Visualize</button></form>';
                     document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
                     document.getElementById('graph').innerHTML = ''; // Clear previous graph
 
                     // Add event listener for the movie selection form
-                    document.getElementById('movie-selection-form').addEventListener('submit', function(e) {
+                    document.getElementById('movie-selection-form').addEventListener('submit', function (e) {
                         e.preventDefault();
                         const selectedMovieId = this.movie_id.value;
                         const maxConnections = document.getElementById('max_connections').value;
@@ -451,22 +542,22 @@
                                 max_connections: maxConnections
                             })
                         })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.graph_data) {
-                                // Parse the graph_data string into a JSON object
-                                const graphData = JSON.parse(data.graph_data);
-                                // Use Plotly to create the graph
-                                Plotly.newPlot('graph', graphData.data, graphData.layout);
-                                document.getElementById('result').innerText = ''; // Clear previous errors
-                            } else {
-                                document.getElementById('result').innerText = data.error || 'An error occurred.';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            document.getElementById('result').innerText = 'An error occurred while fetching the data.';
-                        });
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.graph_data) {
+                                    // Parse the graph_data string into a JSON object
+                                    const graphData = JSON.parse(data.graph_data);
+                                    // Use Plotly to create the graph
+                                    Plotly.newPlot('graph', graphData.data, graphData.layout);
+                                    document.getElementById('result').innerText = ''; // Clear previous errors
+                                } else {
+                                    document.getElementById('result').innerText = data.error || 'An error occurred.';
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                document.getElementById('result').innerText = 'An error occurred while fetching the data.';
+                            });
                     });
                 } else if (data.graph_data) {
                     // If a single movie was found, plot it immediately
@@ -481,164 +572,164 @@
                 console.error('Error:', error);
                 document.getElementById('result').innerText = 'An error occurred while fetching the data.';
             });
-        });
+    });
 
- // second movie for visualization button click
-document.getElementById('second-movie').addEventListener('click', function() {
-    const form = document.getElementById('movie-form');
-    const secondMovieContainer = document.getElementById('second-movie-container');
-    const button = this; // for alternating text
+    // second movie for visualization button click
+    document.getElementById('second-movie').addEventListener('click', function () {
+        const form = document.getElementById('movie-form');
+        const secondMovieContainer = document.getElementById('second-movie-container');
+        const button = this; // for alternating text
 
-    if (secondMovieContainer) {
-        // gets rid of the second movie container and alternates button text
-        secondMovieContainer.remove();
-        button.textContent = 'Add Second Movie';
-    } else {
-        // creates new container below original
-        const container = document.createElement('div');
-        container.id = 'second-movie-container';
-        container.style.marginTop = '10px';
+        if (secondMovieContainer) {
+            // gets rid of the second movie container and alternates button text
+            secondMovieContainer.remove();
+            button.textContent = 'Add Second Movie';
+        } else {
+            // creates new container below original
+            const container = document.createElement('div');
+            container.id = 'second-movie-container';
+            container.style.marginTop = '10px';
 
-        const label = document.createElement('label');
-        label.setAttribute('for', 'movie2_id');
-        label.textContent = 'Enter Second Movie Title: ';
+            const label = document.createElement('label');
+            label.setAttribute('for', 'movie2_id');
+            label.textContent = 'Enter Second Movie Title: ';
+            label.style.color = "black"
 
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.id = 'movie2_id';
-        input.name = 'movie2_id';
-        input.required = false;
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.id = 'movie2_id';
+            input.name = 'movie2_id';
+            input.required = false;
 
-        // Create a label for Max Distance
-        const maxDistanceLabel = document.createElement('label');
-        maxDistanceLabel.setAttribute('for', 'max_distance');
-        maxDistanceLabel.textContent = ' Max Distance: ';
+            // Create a label for Max Distance
+            const maxDistanceLabel = document.createElement('label');
+            maxDistanceLabel.setAttribute('for', 'max_distance');
+            maxDistanceLabel.textContent = ' Max Distance: ';
+            maxDistanceLabel.style.color = "Black";
 
-        // Create an input for Max Distance
-        const maxDistanceInput = document.createElement('input');
-        maxDistanceInput.type = 'number';
-        maxDistanceInput.id = 'max_distance';
-        maxDistanceInput.name = 'max_distance';
-        maxDistanceInput.value = '1'; // Default value
-        maxDistanceInput.min = '1'; // Minimum value
+            // Create an input for Max Distance
+            const maxDistanceInput = document.createElement('input');
+            maxDistanceInput.type = 'number';
+            maxDistanceInput.id = 'max_distance';
+            maxDistanceInput.name = 'max_distance';
+            maxDistanceInput.value = '1'; // Default value
+            maxDistanceInput.min = '1'; // Minimum value
 
-        const secondButton = document.createElement('button');
-        secondButton.type = 'button';
-        secondButton.id = 'secondButton';
-        secondButton.textContent = 'Visualize Two Movies';
-        secondButton.required = false;
-        secondButton.style.marginLeft = '4px';
+            const secondButton = document.createElement('button');
+            secondButton.type = 'button';
+            secondButton.id = 'secondButton';
+            secondButton.textContent = 'Visualize Two Movies';
+            secondButton.required = false;
+            secondButton.style.marginLeft = '4px';
 
-        secondButton.addEventListener('click', async function () {
-            document.getElementById('result').innerHTML = ''; // clear previous message
-            document.getElementById('graph').innerHTML = ''; // clear previous graph
-            const firstMovieName = document.getElementById('movie_id').value;
-            const secondMovieName = input.value;
-            const maxConnections = document.getElementById('max_connections').value; // Get the max connections value
-            const maxDistance = maxDistanceInput.value; // Get the max distance value
-            let firstMovieId = null;
-            let secondMovieId = null;
+            secondButton.addEventListener('click', async function () {
+                document.getElementById('result').innerHTML = ''; // clear previous message
+                document.getElementById('graph').innerHTML = ''; // clear previous graph
+                const firstMovieName = document.getElementById('movie_id').value;
+                const secondMovieName = input.value;
+                const maxConnections = document.getElementById('max_connections').value; // Get the max connections value
+                const maxDistance = maxDistanceInput.value; // Get the max distance value
+                let firstMovieId = null;
+                let secondMovieId = null;
 
-            // Fetch the first movie data
-            const firstMovieData = await fetch('/get_movie_list', {
-                method: 'POST',
-                body: new URLSearchParams({
-                    start_movie: firstMovieName
-                })
-            }).then(response => response.json());
+                // Fetch the first movie data
+                const firstMovieData = await fetch('/get_movie_list', {
+                    method: 'POST',
+                    body: new URLSearchParams({
+                        start_movie: firstMovieName
+                    })
+                }).then(response => response.json());
 
-            // Handle the case where multiple movies are found for the first movie
-            if (Array.isArray(firstMovieData.start_movie_data)) {
-                let movieListHTML = '<h2>Select a Movie</h2><form id="start-selection-form"><ul>';
-                firstMovieData.start_movie_data.forEach(movie => {
-                    let releaseDate = movie.release_date || 'Unknown Year';
-                    let movieCast = movie.cast && movie.cast !== 'Unknown Cast' ? movie.cast : 'Unknown Cast';
-                    movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
+                // Handle the case where multiple movies are found for the first movie
+                if (Array.isArray(firstMovieData.start_movie_data)) {
+                    let movieListHTML = '<h2>Select a Movie</h2><form id="start-selection-form"><ul>';
+                    firstMovieData.start_movie_data.forEach(movie => {
+                        let releaseDate = movie.release_date || 'Unknown Year';
+                        let movieCast = movie.cast && movie.cast !== 'Unknown Cast' ? movie.cast : 'Unknown Cast';
+                        movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
                         <label for="movie_${movie.id}">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
                         </li>`;
-                });
-                movieListHTML += '</ul><button type="submit">Visualize</button></form>';
-                document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
-                document.getElementById('graph').innerHTML = ''; // Clear previous graph
-
-                // Add event listener for the movie selection form
-                firstMovieId = await new Promise(resolve => {
-                    const form = document.getElementById('start-selection-form');
-                    form.addEventListener('submit', function (e) {
-                        e.preventDefault();
-                        resolve(this.movie_id.value);
                     });
- });
-            } else {
-                firstMovieId = firstMovieData.start_movie_data;
-            }
+                    movieListHTML += '</ul><button type="submit">Visualize</button></form>';
+                    document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
+                    document.getElementById('graph').innerHTML = ''; // Clear previous graph
 
-            // Fetch the second movie data
-            const secondMovieData = await fetch('/get_movie_list', {
-                method: 'POST',
-                body: new URLSearchParams({
-                    start_movie: secondMovieName
-                })
-            }).then(response => response.json());
+                    // Add event listener for the movie selection form
+                    firstMovieId = await new Promise(resolve => {
+                        const form = document.getElementById('start-selection-form');
+                        form.addEventListener('submit', function (e) {
+                            e.preventDefault();
+                            resolve(this.movie_id.value);
+                        });
+                    });
+                } else {
+                    firstMovieId = firstMovieData.start_movie_data;
+                }
 
-            // Handle the case where multiple movies are found for the second movie
-            if (Array.isArray(secondMovieData.start_movie_data)) {
-                let movieListHTML = '<h2>Select a Movie</h2><form id="target-selection-form"><ul>';
-                secondMovieData.start_movie_data.forEach(movie => {
-                    let releaseDate = movie.release_date || 'Unknown Year';
-                    let movieCast = movie.cast && movie.cast !== 'Unknown Cast' ? movie.cast : 'Unknown Cast';
-                    movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
+                // Fetch the second movie data
+                const secondMovieData = await fetch('/get_movie_list', {
+                    method: 'POST',
+                    body: new URLSearchParams({
+                        start_movie: secondMovieName
+                    })
+                }).then(response => response.json());
+
+                // Handle the case where multiple movies are found for the second movie
+                if (Array.isArray(secondMovieData.start_movie_data)) {
+                    let movieListHTML = '<h2>Select a Movie</h2><form id="target-selection-form"><ul>';
+                    secondMovieData.start_movie_data.forEach(movie => {
+                        let releaseDate = movie.release_date || 'Unknown Year';
+                        let movieCast = movie.cast && movie.cast !== 'Unknown Cast' ? movie.cast : 'Unknown Cast';
+                        movieListHTML += `<li><input type="radio" id="movie_${movie.id}" name="movie_id" value="${movie.id}" required>
                         <label for="movie_${movie.id}">${movie.original_title} (Release Date: ${releaseDate}) (Top Cast: ${movieCast})</label>
                         </li>`;
-                });
-                movieListHTML += '</ul><button type="submit">Visualize</button></form>';
-                document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
-                document.getElementById('graph').innerHTML = ''; // Clear previous graph
-
-                // Add event listener for the movie selection form
-                secondMovieId = await new Promise(resolve => {
-                    const form = document.getElementById('target-selection-form');
-                    form.addEventListener('submit', function (e) {
-                        e.preventDefault();
-                        resolve(this.movie_id.value);
                     });
-                });
-            } else {
-                secondMovieId = secondMovieData.start_movie_data;
-            }
+                    movieListHTML += '</ul><button type="submit">Visualize</button></form>';
+                    document.getElementById('result').innerHTML = movieListHTML; // Display movie selection
+                    document.getElementById('graph').innerHTML = ''; // Clear previous graph
 
-            // checks for specialized error messages
-             if(firstMovieData.error) {
-                 if(secondMovieData.error) {
-                     document.getElementById('result').innerText = firstMovieData.error || 'An error occurred.';
-                     document.getElementById('result').innerText += "\n" + secondMovieData.error || 'An error occurred.';
-                 }
-                 else
-                    document.getElementById('result').innerText = firstMovieData.error || 'An error occurred.';
-             }
-             else if(secondMovieData.error)
-                 document.getElementById('result').innerText = secondMovieData.error || 'An error occurred.';
-             else {
-                 // Fetch the graph data for the two selected movies
-                 fetch('/visualizeTwoMovies', {
-                     method: 'POST',
-                     body: new URLSearchParams({
-                         movie_name: firstMovieName,
-                         movie_name2: secondMovieName,
-                         movie_id: firstMovieId,
-                         movie_id2: secondMovieId,
-                         max_connections: maxConnections, // Include max connections in the request
-                         max_distance: maxDistance // Include max distance in the request
-                     })
-                 })
-                     .then(response => {
-                         if (!response.ok) {
-                             throw new Error('Network response was not ok');
-                         }
-                         return response.json();
-                     })
-                     .then(data => {
-                         if (data.graph_data) {
+                    // Add event listener for the movie selection form
+                    secondMovieId = await new Promise(resolve => {
+                        const form = document.getElementById('target-selection-form');
+                        form.addEventListener('submit', function (e) {
+                            e.preventDefault();
+                            resolve(this.movie_id.value);
+                        });
+                    });
+                } else {
+                    secondMovieId = secondMovieData.start_movie_data;
+                }
+
+                // checks for specialized error messages
+                if (firstMovieData.error) {
+                    if (secondMovieData.error) {
+                        document.getElementById('result').innerText = firstMovieData.error || 'An error occurred.';
+                        document.getElementById('result').innerText += "\n" + secondMovieData.error || 'An error occurred.';
+                    } else
+                        document.getElementById('result').innerText = firstMovieData.error || 'An error occurred.';
+                } else if (secondMovieData.error)
+                    document.getElementById('result').innerText = secondMovieData.error || 'An error occurred.';
+                else {
+                    // Fetch the graph data for the two selected movies
+                    fetch('/visualizeTwoMovies', {
+                        method: 'POST',
+                        body: new URLSearchParams({
+                            movie_name: firstMovieName,
+                            movie_name2: secondMovieName,
+                            movie_id: firstMovieId,
+                            movie_id2: secondMovieId,
+                            max_connections: maxConnections, // Include max connections in the request
+                            max_distance: maxDistance // Include max distance in the request
+                        })
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.graph_data) {
                              const graphData = JSON.parse(data.graph_data);
                              Plotly.newPlot('graph', graphData.data, graphData.layout);
                              document.getElementById('result').innerText = ''; // Clear previous errors
