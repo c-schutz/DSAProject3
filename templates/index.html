@@ -177,7 +177,7 @@
         }
 
         .dummmy {
-            flex: .1;
+            flex: .2;
         }
 
         label {
@@ -239,7 +239,7 @@
 </script>
 
 
-        <label for="feature-select">Choose a Feature:</label>
+        <label for="feature-select" id="chooseafeat">Choose a Feature:</label>
         <select id="feature-select">
             <option value="visualization-form">Visualization</option>
             <option value="bfs-form">Breadth-First Search</option>
@@ -416,6 +416,7 @@
             document.getElementById('bfs-form').style.backgroundColor = "#D0D0D0";
             document.getElementById('dijkstra-form').style.backgroundColor = "#D0D0D0";
             document.getElementById('graph').style.backgroundColor = "#D0D0D0";
+            document.getElementById('chooseafeat').style.color = "white";
 
 
             document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
@@ -453,6 +454,7 @@
             document.getElementById('bfs-form').style.backgroundColor = "white";
             document.getElementById('dijkstra-form').style.backgroundColor = "white";
             document.getElementById('graph').style.backgroundColor = "white";
+            document.getElementById('chooseafeat').style.color = "black";
 
             document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
                 el.style.color = "#333333";
