@@ -187,7 +187,6 @@ class Graph:
                 visited = set()
                 queue = [(start_node, 0)]  # (node, current_hop)
                 reachable_nodes = set()
-                reachable_from_max = set()
 
                 while queue and len(reachable_nodes) < max_connections:
                     current_node, current_hop = queue.pop(0)
@@ -216,7 +215,7 @@ class Graph:
                     {'error': f"No shared actors found between movies '{movie_title}' and '{movie_title2}'."})
 
             # Create a subgraph with the two movies and their reachable neighbors
-            subgraph = self.graph.subgraph([movie_id, movie_id2] + list(combined_reachable) + list(shared_neighbors))
+            subgraph = self.graph.subgraph([movie_id, movie_id2] + list(combined_reachable) + list(limited_shared_neighbors))
 
         else:
             return json.dumps({'error': f"Movie '{movie_title}' not found."})
