@@ -341,7 +341,7 @@ class Graph:
                     shared_actors_text = ', '.join(shared_actors.get(node, []))
                     node_text = f"Movie: {movie_name}"
                     node_hover_text = f"Shared Actors with {movie_title}: {shared_actors_text}"
-                    path = []
+                    path = nx.shortest_path(self.graph, source=movie_id2, target=node)
                     path_text = " -> ".join(self.graph.nodes[n].get('name', f'{self.movies_df.loc[self.movies_df['id'] == n, 'original_title'].values[0]}') for n in path)
                     node_hover_text += f"<br>Path from {movie_title2}: {path_text}"
                 # if connection is with the second movie
@@ -352,7 +352,7 @@ class Graph:
                     shared_actors_text = ', '.join(shared_actors.get(node, []))
                     node_text = f"Movie: {movie_name}"
                     node_hover_text = f"Shared Actors with {movie_title2}: {shared_actors_text}"
-                    path = []
+                    path = nx.shortest_path(self.graph, source=movie_id, target=node)
                     path_text = " -> ".join(self.graph.nodes[n].get('name', f'{self.movies_df.loc[self.movies_df['id'] == n, 'original_title'].values[0]}') for n in path)
                     node_hover_text += f"<br>Path from {movie_title}: {path_text}"
             # if two movies are given and they connect with each other
