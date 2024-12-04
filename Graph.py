@@ -205,7 +205,6 @@ class Graph:
             # Combine reachable nodes and find shared neighbors
             combined_reachable = reachable_from_movie1 | reachable_from_movie2
             shared_neighbors = neighbors1 & neighbors2
-            print(len(combined_reachable))
 
             # Limit the number of shared neighbors
             if shared_neighbors:
@@ -218,8 +217,6 @@ class Graph:
 
             # Create a subgraph with the two movies and their reachable neighbors
             subgraph = self.graph.subgraph([movie_id, movie_id2] + list(combined_reachable) + list(shared_neighbors))
-
-            # Existing logic to extract shared actors and build the plot...
 
         else:
             return json.dumps({'error': f"Movie '{movie_title}' not found."})
@@ -237,7 +234,7 @@ class Graph:
             edge_trace = go.Scatter(
                 x=[x0, x1, None],
                 y=[y0, y1, None],
-                line=dict(color='#444', width=weight * 0.5),  # Use weight for the line width
+                line=dict(color='#444', width=weight * 0.5 if weight < 10 else 4),  # Use weight for the line width
                 hoverinfo='text',
                 text=""
             )
@@ -321,16 +318,43 @@ class Graph:
                 shared_actors = ', '.join(subgraph[movie_id][node]['actors'])  # Get shared actors
                 node_text = f"Movie: {movie_name}"
                 node_hover_text = f"Shared Actors with {movie_title}: {shared_actors}"
-            # if two movies given, prints the actors shared with both
+            # if two movies given and there is a connection between both
             elif movie_id and node != movie_id and subgraph.has_edge(movie_id, node) and movie_id2 and node != movie_id2 and subgraph.has_edge(movie_id2, node):
-                #TODO: Fix Shared Actors For Two Movies
-                # shared_actors_1_text = ', '.join(shared_actors_1.get(node, []))
-                # shared_actors_2_text = ', '.join(shared_actors_2.get(node, []))
+                shared_actors_1 = {}
+                shared_actors_2 = {}
+                # Get the shared actors for the first movie (movie_id)
+                shared_actors_1[node] = set(subgraph[movie_id][node].get('actors', []))
+                # Get the shared actors for the second movie (movie_id2)
+                shared_actors_2[node] = set(subgraph[movie_id2][node].get('actors', []))
+                shared_actors_1_text = ', '.join(shared_actors_1.get(node, []))
+                shared_actors_2_text = ', '.join(shared_actors_2.get(node, []))
                 node_text = f"Movie: {movie_name}"
-                # node_hover_text = f"Shared Actors with {movie_title}: {shared_actors_1_text}"
-                # node_hover_text += f"<br>Shared Actors with {movie_title2}: {shared_actors_2_text}"
-                node_hover_text =  ""
-
+                node_hover_text = f"Shared Actors with {movie_title}: {shared_actors_1_text}"
+                node_hover_text += f"<br>Shared Actors with {movie_title2}: {shared_actors_2_text}"
+            # if two movies are given and there is only a connection with one (max_distance>1)
+            elif movie_id and node != movie_id and movie_id2 and node != movie_id2 and (subgraph.has_edge(movie_id,node) or subgraph.has_edge(movie_id2, node)):
+                # if connection is with the first movie
+                if subgraph.has_edge(movie_id,node):
+                    shared_actors = {}
+                    # Get the shared actors for the first movie (movie_id)
+                    shared_actors[node] = set(subgraph[movie_id][node].get('actors', []))
+                    shared_actors_text = ', '.join(shared_actors.get(node, []))
+                    node_text = f"Movie: {movie_name}"
+                    node_hover_text = f"Shared Actors with {movie_title}: {shared_actors_text}"
+                    path = []
+                    path_text = " -> ".join(self.graph.nodes[n].get('name', f'{self.movies_df.loc[self.movies_df['id'] == n, 'original_title'].values[0]}') for n in path)
+                    node_hover_text += f"<br>Path from {movie_title2}: {path_text}"
+                # if connection is with the second movie
+                elif subgraph.has_edge(movie_id2, node):
+                    shared_actors = {}
+                    # Get the shared actors for the second movie (movie_id2)
+                    shared_actors[node] = set(subgraph[movie_id2][node].get('actors', []))
+                    shared_actors_text = ', '.join(shared_actors.get(node, []))
+                    node_text = f"Movie: {movie_name}"
+                    node_hover_text = f"Shared Actors with {movie_title2}: {shared_actors_text}"
+                    path = []
+                    path_text = " -> ".join(self.graph.nodes[n].get('name', f'{self.movies_df.loc[self.movies_df['id'] == n, 'original_title'].values[0]}') for n in path)
+                    node_hover_text += f"<br>Path from {movie_title}: {path_text}"
             # if two movies are given and they connect with each other
             elif movie_id and movie_id2 and subgraph.has_edge(movie_id, movie_id2):
                 shared_actors = ', '.join(subgraph[movie_id][movie_id2]['actors'])  # Get shared actors
