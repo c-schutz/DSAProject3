@@ -60,7 +60,6 @@ def visualizeTwoMovies():
 
     # Visualize the graph for the given movie_name and return JSON data
     graph_data = movie_graph.visualize_graph_by_id(movie_id, movie_name, max_connections, movie_id2, movie_name2, max_distance)
-    print(graph_data)
     # checks if an error message was returned and returns that message to be displayed
     if graph_data[:9] == '{"error":':
         error_message = graph_data[11:-3]
