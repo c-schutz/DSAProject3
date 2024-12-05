@@ -127,10 +127,11 @@ def bfs():
     target_movie_name = request.form.get('target_movie')
     start_movie_id = request.form.get('start_movie_id')
     target_movie_id = request.form.get('target_movie_id')
+    dark_mode = request.form.get('dark_mode')
 
     # Perform BFS and return the result, while keeping track of time it takes
     start_time = time.time()
-    graph_data = movie_graph.find_kevin_bacon_number_bfs(start_movie_name, target_movie_name, start_movie_id, target_movie_id)
+    graph_data = movie_graph.find_kevin_bacon_number_bfs(start_movie_name, target_movie_name, start_movie_id, target_movie_id, dark_mode=dark_mode)
     end_time = time.time()
     run_time = (end_time - start_time)
     return jsonify({'graph_data': graph_data, 'run_time': run_time})
@@ -141,10 +142,11 @@ def dijkstra():
     target_movie_name = request.form.get('targetMovie')
     start_movie_id = request.form.get('start_movie_id')
     target_movie_id = request.form.get('target_movie_id')
+    dark_mode = request.form.get('dark_mode')
 
     # Perform dijkstra and return the result, while keeping track of time it takes
     start_time = time.time()
-    graph_data = movie_graph.dijkstra(start_movie_name, target_movie_name, start_movie_id,target_movie_id)
+    graph_data = movie_graph.dijkstra(start_movie_name, target_movie_name, start_movie_id,target_movie_id, dark_mode=dark_mode)
     end_time = time.time()
     run_time = (end_time - start_time)
     return jsonify({'graph_data': graph_data, 'run_time': run_time})

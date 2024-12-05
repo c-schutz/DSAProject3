@@ -900,13 +900,15 @@
                             targetMovieId = data.target_movie_data;
 
                         // calling the passed-in search choice from the function
+                        const darkMode = document.getElementById('toggle').checked ? 'true' : 'false';
                         fetch(search_method, {
                             method: 'POST',
                             body: new URLSearchParams({
                                 start_movie: startMovie,
                                 target_movie: targetMovie,
                                 start_movie_id: startMovieId,
-                                target_movie_id: targetMovieId
+                                target_movie_id: targetMovieId,
+                                dark_mode: darkMode
                             })
                         })
                             .then(response => response.json())
