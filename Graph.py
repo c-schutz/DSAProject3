@@ -455,7 +455,7 @@ class Graph:
                     return matching_movies.loc[choice, 'id']
             except ValueError:
                 print("Invalid input. Please enter a number.")
-    def find_kevin_bacon_number_bfs(self, start_movie_name, target_movie_name, start_movie_id=None, target_movie_id=None):
+    def find_kevin_bacon_number_bfs(self, start_movie_name, target_movie_name, start_movie_id=None, target_movie_id=None, dark_mode=False):
         # Disambiguate the start and target movies
         if start_movie_id is None:
             start_movie_id = self.disambiguate_movie(start_movie_name)
@@ -494,7 +494,7 @@ class Graph:
 
                 # Visualize the path from start movie to target movie
                 subgraph = self.graph.subgraph(path)  # Create subgraph with the BFS path
-                return self.visualize_graph_from_subgraph(subgraph, movie_names[0])
+                return self.visualize_graph_from_subgraph(subgraph, movie_names[0], dark_mode=dark_mode)
 
             # Mark current node as visited
             if current_node not in visited:
@@ -507,7 +507,7 @@ class Graph:
 
         print(f"'{target_movie_name}' is not reachable from '{start_movie_name}'.")
 
-    def dijkstra(self, start_movie_name, target_movie_name, start_movie_id=None, target_movie_id=None):
+    def dijkstra(self, start_movie_name, target_movie_name, start_movie_id=None, target_movie_id=None, dark_mode=False):
         # Ensure start and target movie IDs are specified
         if start_movie_id is None:
             start_movie_id = self.disambiguate_movie(start_movie_name)
@@ -579,9 +579,9 @@ class Graph:
 
             # Visualize the subgraph if needed
             subgraph = self.graph.subgraph(path)
-            return self.visualize_graph_from_subgraph(subgraph, movie_names[0])
+            return self.visualize_graph_from_subgraph(subgraph, movie_names[0], dark_mode=dark_mode)
 
-    def visualize_graph_from_subgraph(self, subgraph, movie_title):
+    def visualize_graph_from_subgraph(self, subgraph, movie_title, dark_mode=False):
         fig = make_subplots()
 
         # Layout of the graph
@@ -716,11 +716,18 @@ class Graph:
         for edge_trace in edge_traces:
             fig.add_trace(edge_trace)
         fig.add_trace(node_trace)
-        fig.update_layout(
-            showlegend=False,
-            plot_bgcolor='white',  # Background of the plot area
-            paper_bgcolor='white'  # Background of the entire figure
-        )
+        if not dark_mode:
+            fig.update_layout(
+                    showlegend=False,
+                    plot_bgcolor='white',  # Background of the plot area
+                    paper_bgcolor='white'  # Background of the entire figure
+                     )
+        else:
+            fig.update_layout(
+                showlegend=False,
+                plot_bgcolor='grey',  # Background of the plot area
+                paper_bgcolor='grey'  # Background of the entire figure
+            )
         fig.update_xaxes(showgrid=False, showticklabels=False)
         fig.update_yaxes(showgrid=False, showticklabels=False)
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
