@@ -16,7 +16,7 @@ The Movie Vizualization Graph project allows users to explore relationships betw
 - Required libraries:
   - `pandas`
   - `networkx`
-  - `plotly (version 5.24.1)`
+  - `plotly`
   - `heapq`
   - `ast`
   - `json`

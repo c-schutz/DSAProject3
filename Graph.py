@@ -257,8 +257,7 @@ class Graph:
                 color=[],
                 colorbar=dict(
                     thickness=25,
-                    xanchor='left',
-                    titleside='right',
+                    xanchor='left'
                 ),
                 line=dict(width=2, color=[])
             )
@@ -623,7 +622,6 @@ class Graph:
                     thickness=25,
                     title='Node Connections',
                     xanchor='left',
-                    titleside='right',
                 ),
                 line=dict(width=2, color=[])
             )
@@ -720,13 +718,17 @@ class Graph:
             fig.update_layout(
                     showlegend=False,
                     plot_bgcolor='white',  # Background of the plot area
-                    paper_bgcolor='white'  # Background of the entire figure
+                    paper_bgcolor='white',  # Background of the entire figure
+                    xaxis=dict(showgrid=False, showticklabels=False, showline=False),
+                    yaxis=dict(showgrid=False, showticklabels=False, showline=False)
                      )
         else:
             fig.update_layout(
                 showlegend=False,
                 plot_bgcolor='grey',  # Background of the plot area
-                paper_bgcolor='grey'  # Background of the entire figure
+                paper_bgcolor='grey',  # Background of the entire figure
+                xaxis = dict(showgrid=False, showticklabels=False, showline=False),
+                yaxis = dict(showgrid=False, showticklabels=False, showline=False)
             )
         fig.update_xaxes(showgrid=False, showticklabels=False)
         fig.update_yaxes(showgrid=False, showticklabels=False)

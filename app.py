@@ -19,7 +19,6 @@ def visualize():
     movie_name = request.form.get('movie_id')
     max_connections = int(request.form.get('max_connections', 15))
     dark_mode = request.form.get('dark_mode') == 'true'
-    print(dark_mode)
     # Visualize the graph for the given movie_name and return JSON data
     graph_data = movie_graph.visualize_graph(movie_name, max_connections, dark_mode=dark_mode)
 
