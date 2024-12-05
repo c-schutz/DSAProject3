@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Movie Vizualization Graph project allows users to explore relationships between movies based on shared actors. It implements two algorithms: Breadth-First Search (BFS) and Dijkstra's algorithm, to find paths between movies and analyze their connections.
+The Movie Vizualization Graph project allows users to explore relationships between movies (from 2020 or earlier) based on shared actors. It implements two algorithms: Breadth-First Search (BFS) and Dijkstra's algorithm, to find paths between movies and analyze their connections.
 
 ## Features
 
