@@ -412,8 +412,8 @@ class Graph:
                 showlegend=False,
                 plot_bgcolor='white',  # Background of the plot area
                 paper_bgcolor='white',  # Background of the entire figure
-                xaxis=dict(showgrid=False, showticklabels=False, showline=False),
-                yaxis=dict(showgrid=False, showticklabels=False, showline=False)
+                xaxis=dict(showline=False, zeroline=False, showticklabels=False),
+                yaxis=dict(showline=False, zeroline=False, showticklabels=False)
             )
         else:
             fig.update_layout(
@@ -719,19 +719,19 @@ class Graph:
                     showlegend=False,
                     plot_bgcolor='white',  # Background of the plot area
                     paper_bgcolor='white',  # Background of the entire figure
-                    xaxis=dict(showgrid=False, showticklabels=False, showline=False),
-                    yaxis=dict(showgrid=False, showticklabels=False, showline=False)
+                    xaxis=dict(showline=False, zeroline=False, showticklabels=False),
+                    yaxis=dict(showline=False, zeroline=False, showticklabels=False)
                      )
         else:
             fig.update_layout(
                 showlegend=False,
                 plot_bgcolor='grey',  # Background of the plot area
                 paper_bgcolor='grey',  # Background of the entire figure
-                xaxis = dict(showgrid=False, showticklabels=False, showline=False),
-                yaxis = dict(showgrid=False, showticklabels=False, showline=False)
+                xaxis=dict(showline=False, zeroline=False, showticklabels=False),
+                yaxis=dict(showline=False, zeroline=False, showticklabels=False)
             )
-        fig.update_xaxes(showgrid=False, showticklabels=False)
-        fig.update_yaxes(showgrid=False, showticklabels=False)
+        fig.update_xaxes(showgrid=False, showticklabels=False, showline=False)
+        fig.update_yaxes(showgrid=False, showticklabels=False, showline=False)
         return json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
     def choose_options(self, new_options):
         self.options = new_options
