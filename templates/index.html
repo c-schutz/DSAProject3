@@ -76,7 +76,7 @@
             display: inline-block;
             margin: 5px;
             padding: 5px 10px;
-            background-color: #E7E7E7;
+            background-color: #498fe0;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -265,28 +265,13 @@
     const movieInput = document.getElementById('movie_id');
     const suggestionsDiv = document.getElementById('movie-suggestions');
 
+    function isDarkModeEnabled() {
+        return document.getElementById('toggle').checked;
+    }
+
     movieInput.addEventListener('input', function() {
         const query = movieInput.value;
-
-        if (query.length > 0) {
-            fetch(`/suggestions?query=${query}`)
-                .then(response => response.json())
-                .then(data => {
-                    suggestionsDiv.innerHTML = '';
-                    data.suggestions.forEach(movie => {
-                        const suggestionButton = document.createElement('button');
-                        suggestionButton.textContent = movie;
-                        suggestionButton.classList.add('suggestion-button');
-                        suggestionButton.onclick = function() {
-                            movieInput.value = movie; // Fill in the movie_id input
-                            suggestionsDiv.innerHTML = ''; // Clear suggestions
-                        };
-                        suggestionsDiv.appendChild(suggestionButton);
-                    });
-                });
-        } else {
-            suggestionsDiv.innerHTML = '';
-        }
+        fetchSuggestions(query, suggestionsDiv, movieInput);
     });
 </script>
 
@@ -315,6 +300,10 @@
         fetchSuggestions(query, bfsSuggestionsDiv, targetMovieInput);
     });
 
+    function isDarkModeEnabled() {
+        return document.getElementById('toggle').checked;
+    }
+
     function fetchSuggestions(query, suggestionsDiv, inputField) {
         if (query.length > 0) {
             fetch(`/suggestions?query=${query}`)
@@ -325,6 +314,10 @@
                         const suggestionButton = document.createElement('button');
                         suggestionButton.textContent = movie;
                         suggestionButton.classList.add('suggestion-button');
+                        if (isDarkModeEnabled()) {
+                            suggestionButton.style.backgroundColor = "#333333";
+                            suggestionButton.style.color = "#E0E0E0";
+                        }
                         suggestionButton.onclick = function() {
                             inputField.value = movie; // Fill in the input field
                             suggestionsDiv.innerHTML = ''; // Clear suggestions
@@ -379,28 +372,6 @@
         const query = targetMovieDijkstraInput.value;
         fetchSuggestions(query, dijkstraSuggestionsDiv, targetMovieDijkstraInput);
     });
-
-    function fetchSuggestions(query, suggestionsDiv, inputField) {
-        if (query.length > 0) {
-            fetch(`/suggestions?query=${query}`)
-                .then(response => response.json())
-                .then(data => {
-                    suggestionsDiv.innerHTML = '';
-                    data.suggestions.forEach(movie => {
-                        const suggestionButton = document.createElement('button');
-                        suggestionButton.textContent = movie;
-                        suggestionButton.classList.add('suggestion-button');
-                        suggestionButton.onclick = function () {
-                            inputField.value = movie; // Fill in the input field
-                            suggestionsDiv.innerHTML = ''; // Clear suggestions
-                        };
-                        suggestionsDiv.appendChild(suggestionButton);
-                    });
-                });
-        } else {
-            suggestionsDiv.innerHTML = '';
-        }
-    }
 </script>
 
     <div id="result"></div>
@@ -618,25 +589,7 @@
 
             input.addEventListener('input', function () {
                 const query = input.value;
-                 if (query.length > 0) {
-                        fetch(`/suggestions?query=${query}`)
-                            .then(response => response.json())
-                            .then(data => {
-                                suggestionsDiv.innerHTML = '';
-                                data.suggestions.forEach(movie => {
-                                    const suggestionButton = document.createElement('button');
-                                    suggestionButton.textContent = movie;
-                                    suggestionButton.classList.add('suggestion-button');
-                                    suggestionButton.onclick = function() {
-                                        input.value = movie; // Fill in the movie_id input
-                                        suggestionsDiv.innerHTML = ''; // Clear suggestions
-                                    };
-                                    suggestionsDiv.appendChild(suggestionButton);
-                                });
-                            });
-                    } else {
-                        suggestionsDiv.innerHTML = '';
-                    }
+                fetchSuggestions(query, suggestionsDiv, input);
             });
 
 
